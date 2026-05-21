@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>cobutlers Kalkulation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1a2332;--n2:#243044;--gd:#4e9470;--gl:#8bc4a8;--gp:#e8f4ee;
+--g100:#f5f6f8;--g200:#e8eaed;--g300:#d1d5db;--g400:#9ba3af;--g600:#5a6270}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--g100);color:var(--navy);min-height:100vh;padding-bottom:90px}
+
+/* DASHBOARD */
+.dash-hdr{background:var(--navy);padding:44px 20px 32px;text-align:center;position:relative;overflow:hidden}
+.dash-hdr:before{content:'';position:absolute;top:-80px;right:-80px;width:260px;height:260px;background:rgba(139,196,168,.07);border-radius:50%}
+.dash-hdr:after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;background:rgba(78,148,112,.05);border-radius:50%}
+.dash-gear{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+.dash-logo-wrap{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:8px;position:relative;z-index:1}
+.dash-logo-ic{width:54px;height:54px;background:var(--gl);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.dash-nm{font-size:28px;font-weight:700;color:#fff;letter-spacing:-.5px}
+.dash-sub{font-size:10px;color:var(--gl);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-top:1px}
+.dash-addr{font-size:12px;color:rgba(255,255,255,.4);margin-top:12px;position:relative;z-index:1}
+.dash-pg{padding:0 14px 14px}
+.dsec{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--g400);margin:18px 0 10px}
+.dstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dstat{background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.dstat-v{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--navy)}
+.dstat-l{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--g400);margin-top:3px}
+.dmod{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px}
+.dmod-top{padding:16px;display:flex;align-items:center;gap:14px}
+.dmod-ic{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.dmod-ic.unt{background:linear-gradient(135deg,#2e3d55,#1a2332)}
+.dmod-ic.bau{background:linear-gradient(135deg,#e8954a,#c97030)}
+.dmod-ic.fen{background:linear-gradient(135deg,#4e9470,#2d6e4e)}
+.dmod-title{font-size:15px;font-weight:700;color:var(--navy)}
+.dmod-desc{font-size:11px;color:var(--g400);margin-top:2px}
+.dmod-cnt{background:var(--g100);border-radius:16px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--g600);white-space:nowrap}
+.dmod-btns{display:flex;border-top:1px solid var(--g100)}
+.dmod-btn{flex:1;height:46px;background:none;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.dmod-btn:active{background:var(--g100)}
+.dmod-btn.new{color:var(--gd);border-right:1px solid var(--g100)}
+.dmod-btn.arch{color:var(--g600)}
+
+/* MODULE HEADER */
+.mod-hdr{background:var(--navy);padding:14px 14px 0;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.mod-hdr-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back-btn{background:var(--n2);border:none;color:#fff;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.mod-tw{flex:1}
+.mod-title{font-size:15px;font-weight:700;color:#fff}
+.mod-sub{font-size:9px;color:var(--gl);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.stepbar{display:flex;gap:3px;padding:0 0 10px}
+.sdot{flex:1;height:3px;background:var(--n2);border-radius:2px;transition:.3s}
+.sdot.done{background:var(--gd)}
+.sdot.active{background:var(--gl)}
+.slbl{font-size:10px;color:var(--g400);padding:4px 0 8px;font-weight:500}
+
+/* CONTENT */
+.pg{padding:12px 14px 0}
+.card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.sec{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--g400);margin:16px 0 7px}
+.sec:first-child{margin-top:0}
+.fld{margin-bottom:12px}
+.fld:last-child{margin-bottom:0}
+.flbl{font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block}
+.frow{display:flex;align-items:center;gap:8px}
+.inp{flex:1;height:44px;border:1.5px solid var(--g200);border-radius:10px;padding:0 12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:var(--navy);background:var(--g100);outline:none;-webkit-appearance:none}
+.inp:focus{border-color:var(--gd);background:#fff}
+textarea.inp{height:70px;padding:10px 12px;resize:none;font-size:13px;line-height:1.5}
+.unit{font-size:12px;color:var(--g400);font-weight:500;white-space:nowrap;min-width:30px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:7px 13px;border:1.5px solid var(--g200);border-radius:18px;background:#fff;font-size:12px;font-weight:600;color:var(--g400);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
+.chip.on{border-color:var(--gd);background:var(--gp);color:var(--navy)}
+.days{display:flex;gap:5px}
+.day{flex:1;height:38px;border:1.5px solid var(--g200);border-radius:9px;background:#fff;font-size:11px;font-weight:700;color:var(--g400);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+.day.on{border-color:var(--gd);background:var(--gp);color:var(--navy)}
+.trow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g100)}
+.trow:last-child{border-bottom:none}
+.tlbl{font-size:13px;font-weight:500;color:var(--navy)}
+.tsub{font-size:11px;color:var(--g400);margin-top:1px}
+.sw{position:relative;width:44px;height:26px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0}
+.sw-t{position:absolute;inset:0;background:var(--g200);border-radius:13px;cursor:pointer;transition:.3s}
+.sw-t:before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw input:checked+.sw-t{background:var(--gd)}
+.sw input:checked+.sw-t:before{transform:translateX(18px)}
+.ctr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cbox{background:var(--g100);border-radius:10px;padding:10px}
+.cbox-l{font-size:11px;font-weight:600;color:var(--g600);margin-bottom:7px}
+.cmin{display:flex;align-items:center;background:#fff;border-radius:8px;border:1.5px solid var(--g200);overflow:hidden}
+.cb{flex:1;height:32px;background:none;border:none;font-size:17px;color:var(--navy);cursor:pointer;font-family:'DM Sans',sans-serif}
+.cv{width:28px;text-align:center;font-size:14px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace}
+.type-row{display:flex;gap:8px}
+.topt{flex:1;padding:10px 8px;border:2px solid var(--g200);border-radius:10px;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--g400);cursor:pointer;text-align:center}
+.topt.on{border-color:var(--gd);background:var(--gp);color:var(--navy)}
+.ma-stp{display:flex;align-items:center;background:var(--g100);border-radius:10px;border:1.5px solid var(--g200);overflow:hidden}
+.ma-btn{width:44px;height:44px;background:none;border:none;font-size:20px;color:var(--navy);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+.ma-btn:active{background:var(--g200)}
+.ma-val{flex:1;text-align:center;font-size:18px;font-weight:700;color:var(--navy);font-family:'DM Mono',monospace}
+.fen-hdr{display:grid;grid-template-columns:1fr 1fr 60px 44px 28px;gap:5px;margin-bottom:4px}
+.fen-hdr span{font-size:10px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.8px}
+.fen-row{display:grid;grid-template-columns:1fr 1fr 60px 44px 28px;gap:5px;align-items:center;margin-bottom:7px}
+.fi{height:40px;border:1.5px solid var(--g200);border-radius:8px;padding:0 8px;font-family:'DM Mono',monospace;font-size:14px;color:var(--navy);background:var(--g100);outline:none;width:100%;-webkit-appearance:none}
+.fi:focus{border-color:var(--gd);background:#fff}
+.ftot{font-size:12px;font-weight:700;color:var(--gd);font-family:'DM Mono',monospace;text-align:center}
+.del-btn{width:26px;height:26px;background:none;border:1.5px solid var(--g200);border-radius:7px;color:var(--g400);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif}
+.add-row{width:100%;height:38px;background:var(--g100);border:1.5px dashed var(--g300);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:var(--g400);cursor:pointer;margin-top:8px}
+.nav{display:flex;gap:10px;margin-top:16px;padding-bottom:4px}
+.btn-back{flex:1;height:50px;background:#fff;border:1.5px solid var(--g200);border-radius:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--g600);cursor:pointer}
+.btn-next{flex:2;height:50px;background:var(--gd);border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer}
+
+/* RESULT */
+.rcard{background:var(--navy);border-radius:16px;padding:16px;margin-bottom:10px;color:#fff}
+.rhead{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--gl);margin-bottom:12px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.rbox{background:var(--n2);border-radius:10px;padding:11px}
+.rbox-l{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--g400);margin-bottom:3px}
+.rbox-v{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#fff}
+.rbox-v.gr{color:var(--gl)}
+.rbox-v.rd{color:#ff8080}
+.rbox-v.or{color:#ffb866}
+.rsub{font-size:11px;color:var(--g400);margin-top:2px}
+.bk{border-top:1px solid var(--n2);padding-top:12px;margin-top:2px}
+.bk-t{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--g400);margin-bottom:8px}
+.bkr{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+.bkl{font-size:12px;color:var(--g400)}
+.bkv{font-family:'DM Mono',monospace;font-size:12px;color:#fff}
+.bkd{border:none;border-top:1px solid var(--n2);margin:6px 0}
+.bktot{display:flex;justify-content:space-between;font-size:13px;font-weight:700;padding-top:3px}
+.bktot-v{font-family:'DM Mono',monospace;color:var(--gl)}
+.pbox{background:linear-gradient(135deg,#4a9270,#2d6e4e);border-radius:14px;padding:18px;margin-bottom:10px}
+.pbox-l{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:5px;text-align:center}
+.pbox-v{font-size:32px;font-weight:700;font-family:'DM Mono',monospace;color:#fff;text-align:center}
+.pbox-s{font-size:11px;color:rgba(255,255,255,.6);margin-top:3px;text-align:center}
+.pbox-b{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;color:#fff;margin-top:7px}
+.pbox-center{text-align:center;margin-top:10px}
+.pkg-row{background:var(--n2);border-radius:10px;padding:12px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.pkg-row:last-child{margin-bottom:0}
+.pkg-n{font-size:13px;font-weight:700;color:#fff}
+.pkg-d{font-size:11px;color:var(--g400);margin-top:1px}
+.pkg-a{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#fff;text-align:right}
+.pkg-m{font-size:11px;color:var(--g400)}
+.slider-wrap{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.15)}
+.slider-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px;text-align:center}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.slider-min,.slider-max{font-size:10px;color:rgba(255,255,255,.55);font-family:'DM Mono',monospace;font-weight:600;white-space:nowrap}
+.slider{flex:1;-webkit-appearance:none;appearance:none;height:6px;background:rgba(255,255,255,.2);border-radius:3px;outline:none}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;background:#fff;border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.slider::-moz-range-thumb{width:22px;height:22px;background:#fff;border-radius:50%;cursor:pointer;border:none;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.slider-info{display:flex;justify-content:space-around;font-size:11px;color:rgba(255,255,255,.7);font-weight:600;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.1)}
+.sinfo-item{text-align:center}
+.sinfo-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:#fff;margin-top:2px;display:block}
+.sinfo-val.warn{color:#ffb866}
+.sinfo-val.danger{color:#ff8080}
+
+/* COPY BOX */
+.copy-box{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.copy-box-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.copy-text{background:var(--g100);border-radius:10px;padding:12px;font-size:12px;font-family:'DM Mono',monospace;color:var(--g600);line-height:1.7;white-space:pre-wrap;word-break:break-word;margin-bottom:10px}
+.copy-btn{width:100%;height:46px;background:var(--navy);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.copy-btn:active{background:var(--n2)}
+.copy-btn.copied{background:var(--gd)}
+
+/* STATUS BADGES */
+.status-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.status-chip{padding:6px 12px;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--g200);background:#fff;color:var(--g400);font-family:'DM Sans',sans-serif}
+.status-chip.on-offen{border-color:#9ba3af;background:#f5f6f8;color:#5a6270}
+.status-chip.on-versendet{border-color:#4e9470;background:#e8f4ee;color:#2d6e4e}
+.status-chip.on-angenommen{border-color:#2d6e4e;background:#4e9470;color:#fff}
+.status-chip.on-abgelehnt{border-color:#e05c5c;background:#fef2f2;color:#e05c5c}
+
+/* PHOTOS */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.photo-thumb{aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--g100);border:1.5px solid var(--g200);cursor:pointer;position:relative}
+.photo-thumb img{width:100%;height:100%;object-fit:cover}
+.photo-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+.photo-add{aspect-ratio:1;border-radius:10px;border:1.5px dashed var(--g300);background:var(--g100);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:var(--g400);gap:4px}
+.photo-add span{font-size:10px;font-weight:600;color:var(--g400)}
+input[type=file]#photoInput{display:none}
+
+/* ARCHIVE */
+.arch-new-btn{width:100%;height:46px;background:var(--gd);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;margin-bottom:12px}
+.arch-item{background:#fff;border-radius:13px;padding:14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.05);cursor:pointer}
+.arch-item:active{background:var(--gp)}
+.arch-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.arch-name{font-size:14px;font-weight:700;color:var(--navy)}
+.arch-det{font-size:11px;color:var(--g400);margin-top:2px}
+.arch-right{text-align:right;flex-shrink:0;margin-left:10px}
+.arch-price{font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:var(--navy)}
+.arch-date{font-size:10px;color:var(--g400);margin-top:2px}
+.arch-bottom{display:flex;align-items:center;justify-content:space-between}
+.arch-del{background:none;border:1.5px solid var(--g200);height:30px;padding:0 12px;border-radius:8px;color:var(--g400);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif}
+.arch-empty{text-align:center;padding:40px 20px;color:var(--g400);font-size:13px}
+
+/* SETTINGS */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end}
+.ov.show{display:flex}
+.panel{background:#fff;border-radius:20px 20px 0 0;padding:18px 16px 50px;width:100%;max-height:88vh;overflow-y:auto;animation:up .3s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ph{width:36px;height:4px;background:var(--g200);border-radius:2px;margin:0 auto 18px}
+.pt{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px}
+.pt-sub{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--g400);margin:14px 0 8px}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--g100)}
+.sl{font-size:13px;font-weight:500;color:var(--navy)}
+.ss{font-size:11px;color:var(--g400);margin-top:1px}
+.si{width:84px;height:36px;border:1.5px solid var(--g200);border-radius:8px;padding:0 8px;font-family:'DM Mono',monospace;font-size:14px;text-align:right;outline:none;color:var(--navy)}
+.si:focus{border-color:var(--gd)}
+.si3{width:100%;height:38px;border:1.5px solid var(--g200);border-radius:8px;padding:0 10px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;color:var(--navy);margin-top:5px}
+.si3:focus{border-color:var(--gd)}
+.save-btn{width:100%;height:48px;background:var(--navy);border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;margin-top:18px}
+.reset-btn{width:100%;height:40px;background:none;border:1.5px solid var(--g200);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--g400);cursor:pointer;margin-top:8px}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:300;transition:transform .35s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="appHdr"></div>
+<div id="pg"></div>
+
+<!-- SETTINGS -->
+<div class="ov" id="ov" onclick="closeOv(event)">
+  <div class="panel">
+    <div class="ph"></div>
+    <div class="pt">Einstellungen</div>
+    <div class="pt-sub">Eigene Firmendaten</div>
+    <div style="background:var(--g100);border-radius:10px;padding:12px">
+      <label class="flbl" style="margin-bottom:3px">Firmenname</label>
+      <input class="si3" type="text" id="sf_n" placeholder="cobutlers Gebaeudereinigung">
+      <label class="flbl" style="margin:8px 0 3px">Strasse</label>
+      <input class="si3" type="text" id="sf_str" placeholder="Ortenburgerring 13">
+      <label class="flbl" style="margin:8px 0 3px">PLZ, Ort</label>
+      <input class="si3" type="text" id="sf_plz" placeholder="84140 Gangkofen">
+      <label class="flbl" style="margin:8px 0 3px">Telefon</label>
+      <input class="si3" type="tel" id="sf_tel" placeholder="+49 8722 9664451">
+      <label class="flbl" style="margin:8px 0 3px">E-Mail</label>
+      <input class="si3" type="email" id="sf_email" placeholder="info@cobutlers.de">
+    </div>
+    <div class="pt-sub">Kostensaetze (intern)</div>
+    <div class="sr"><div><div class="sl">Vollkosten Unterhalt</div><div class="ss">Euro/Std. inkl. LNK</div></div><input class="si" type="number" id="s1" step="0.5"></div>
+    <div class="sr"><div><div class="sl">Vollkosten Bau &amp; Fenster</div><div class="ss">Euro/Std. inkl. LNK</div></div><input class="si" type="number" id="s2" step="0.5"></div>
+    <div class="sr"><div><div class="sl">Materialkosten %</div><div class="ss">vom Auftrag</div></div><input class="si" type="number" id="s4" step="0.5"></div>
+    <div class="pt-sub">Produktivitaet</div>
+    <div class="sr"><div><div class="sl">Bau: m2/Tag pro MA</div><div class="ss">Nettoleistung</div></div><input class="si" type="number" id="s5" step="5"></div>
+    <div class="sr"><div><div class="sl">Fenster: m2/Std. pro MA</div><div class="ss">Beidseitig Quick</div></div><input class="si" type="number" id="s6" step="1"></div>
+    <div class="sr"><div><div class="sl">Arbeitsstunden/Tag</div><div class="ss">Netto ohne Fahrt</div></div><input class="si" type="number" id="s7" step="0.5"></div>
+    <div class="sr"><div><div class="sl">Max. Ueberstunden/Tag</div><div class="ss">Pro MA (Bau &amp; Fenster)</div></div><input class="si" type="number" id="s8" step="0.5"></div>
+    <button class="save-btn" onclick="saveSettings()">Speichern</button>
+    <button class="reset-btn" onclick="resetDef()">Standardwerte wiederherstellen</button>
+  </div>
+</div>
+
+<input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(this)">
+<div class="toast" id="toast"></div>
+
+<script>
+var C={untR:20.25,bauR:22.95,mat:3,bauM2:140,fenM2h:40,stdTag:7,maxUeStd:2,
+  firmName:'cobutlers Gebaeudereinigung',firmStr:'Ortenburgerring 13',
+  firmPlz:'84140 Gangkofen',firmTel:'+49 8722 9664451',firmEmail:'info@cobutlers.de'};
+
+var SCR='dash'; // dash | unt | bau | fen | arch-unt | arch-bau | arch-fen
+var untStep=0,bauStep=0,fenStep=0;
+var liveAdj={unt:1.0,bau:1.0,fen:1.0};
+var SAVED=[];
+var USTEPS=['Kunde','Turnus','Raeume','Leistungen','Ergebnis'];
+var BSTEPS=['Kunde','Objekt','Ergebnis'];
+var FSTEPS=['Kunde','Aufmass','Ergebnis'];
+var STATUS_OPTS=['Offen','Versendet','Angenommen','Abgelehnt'];
+var currentPhotoTarget=null; // which saved item gets the photo
+
+var U={fn:'',fa:'',fe:'',ftel:'',fap:'',fahrtMin:0,ma:1,
+  turnus:'woechentlich',tage:[],uhr:'',oa:'buero',of:'',zs:false,zc:false,zp:false,
+  raeume:[{n:'Buero/Verwaltung',mh:140,m2:0},{n:'Flur/Treppenhaus',mh:180,m2:0},
+    {n:'Sanitaer',mh:65,m2:0},{n:'Teekueche',mh:90,m2:0},
+    {n:'Konferenzraum',mh:120,m2:0},{n:'Empfang/Foyer',mh:130,m2:0},
+    {n:'Lager/Archiv',mh:200,m2:0},{n:'Sonderflaeche',mh:100,m2:0}],
+  hWC:0,dWC:0,hD:0,dD:0,pis:0,bWC:0,
+  bT:false,bF:true,bP:false,bPa:false,bS:false,
+  muell:true,nach:true,ofl:true,tg:true,spi:true,fenI:false,kuehl:false,notes:''};
+var B={fn:'',fa:'',fe:'',ftel:'',fap:'',fahrtMin:60,ma:2,
+  etagen:[{name:'EG',m2:0}],art:'fein',schmutz:'mittel',extraOn:false,
+  klebe:false,farbe:false,gips:false,folie:false,fliesen:false,sonder:false,notes:''};
+var F={fn:'',fa:'',fe:'',ftel:'',fap:'',fahrtMin:60,ma:1,
+  art:'fein',gruppen:[{typ:'standard',b:'',h:'',anz:'1'}]};
+
+var ARTEN=[['buero','Buero'],['arzt','Arztpraxis'],['geschaeft','Geschaeft'],['schule','Schule'],
+  ['kiga','Kindergarten'],['produktion','Produktion'],['hotel','Hotel'],
+  ['verwaltung','Verwaltung'],['sonstige','Sonstige']];
+var TURN=[['taeglich','Taegl.'],['woechentlich','1x/Wo'],['2x','2x/Wo'],['3x','3x/Wo'],['4x','4x/Wo'],['monatlich','1x/Mo']];
+var DAYS=['Mo','Di','Mi','Do','Fr','Sa','So'];
+var SCHMUTZ=[['leicht','Leicht'],['mittel','Mittel'],['stark','Stark']];
+
+function gv(id){var e=document.getElementById(id);return e?e.value:'';}
+function fmt(v){return v.toLocaleString('de-DE',{style:'currency',currency:'EUR'});}
+function now(){return new Date().toLocaleDateString('de-DE');}
+function showToast(m){var t=document.getElementById('toast');t.innerHTML=m;t.className='toast show';setTimeout(function(){t.className='toast';},2500);}
+
+// ============================================================
+// ROUTING & RENDER
+// ============================================================
+function goScreen(s){SCR=s;render();}
+function goMod(mod,fresh){
+  SCR=mod;
+  if(fresh){
+    if(mod==='unt')resetU(true);
+    else if(mod==='bau')resetB(true);
+    else resetF(true);
+  }
+  render();
+}
+function goArch(mod){SCR='arch-'+mod;render();}
+function goDash(){SCR='dash';render();}
+
+function renderHdr(){
+  var hdr=document.getElementById('appHdr');
+  if(SCR==='dash'){hdr.innerHTML='';return;}
+  var isArch=SCR.indexOf('arch-')===0;
+  var mod=isArch?SCR.replace('arch-',''):SCR;
+  var titles={unt:'Unterhalt',bau:'Baureinigung',fen:'Fensterreinigung'};
+  if(isArch){
+    hdr.innerHTML='<div class="mod-hdr"><div class="mod-hdr-top">'
+      +'<button class="back-btn" onclick="goDash()">&#8592;</button>'
+      +'<div class="mod-tw"><div class="mod-title">'+titles[mod]+'</div><div class="mod-sub">Archiv</div></div>'
+      +'<button class="back-btn" onclick="openSettings()" style="margin-left:auto">&#9881;</button>'
+      +'</div></div>';
+    return;
+  }
+  var steps=SCR==='unt'?USTEPS:SCR==='bau'?BSTEPS:FSTEPS;
+  var cur=SCR==='unt'?untStep:SCR==='bau'?bauStep:fenStep;
+  var dots='';
+  for(var i=0;i<steps.length;i++)dots+='<div class="sdot'+(i<cur?' done':i===cur?' active':'')+'" ></div>';
+  hdr.innerHTML='<div class="mod-hdr"><div class="mod-hdr-top">'
+    +'<button class="back-btn" onclick="goDash()">&#8592;</button>'
+    +'<div class="mod-tw"><div class="mod-title">'+titles[mod]+'</div><div class="mod-sub">Kalkulation</div></div>'
+    +'<button class="back-btn" onclick="goArch(\''+mod+'\')" style="margin-left:auto;font-size:14px">&#x1F4CB;</button>'
+    +'<button class="back-btn" onclick="openSettings()">&#9881;</button>'
+    +'</div>'
+    +'<div class="stepbar">'+dots+'</div>'
+    +'<div class="slbl">Schritt '+(cur+1)+'/'+steps.length+': '+steps[cur]+'</div>'
+    +'</div>';
+}
+
+function render(){
+  renderHdr();
+  var pg=document.getElementById('pg');
+  if(SCR==='dash'){pg.innerHTML=renderDash();return;}
+  if(SCR==='arch-unt'){pg.innerHTML=renderArch('unt');return;}
+  if(SCR==='arch-bau'){pg.innerHTML=renderArch('bau');return;}
+  if(SCR==='arch-fen'){pg.innerHTML=renderArch('fen');return;}
+  if(SCR==='unt')pg.innerHTML=renderUnt();
+  else if(SCR==='bau')pg.innerHTML=renderBau();
+  else pg.innerHTML=renderFen();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function inp(l,t,id,v,ph,u){
+  return '<div class="fld"><label class="flbl">'+l+'</label><div class="frow">'
+    +'<input class="inp" type="'+t+'" id="'+id+'" value="'+v+'" placeholder="'+(ph||'')+'"'+(t==='number'?' inputmode="decimal"':'')+'>'
+    +(u?'<span class="unit">'+u+'</span>':'')+'</div></div>';
+}
+function trow(l,id,ch,oc,sub){
+  return '<div class="trow"><div><div class="tlbl">'+l+'</div>'+(sub?'<div class="tsub">'+sub+'</div>':'')+'</div>'
+    +'<label class="sw"><input type="checkbox" id="'+id+'"'+(ch?' checked':'')+' onchange="'+oc+'"><span class="sw-t"></span></label></div>';
+}
+function rb(l,v,s,c){return '<div class="rbox"><div class="rbox-l">'+l+'</div><div class="rbox-v'+(c?' '+c:'')+'">'
+  +v+'</div>'+(s?'<div class="rsub">'+s+'</div>':'')+'</div>';}
+function bkrow(l,v){return '<div class="bkr"><span class="bkl">'+l+'</span><span class="bkv">'+v+'</span></div>';}
+function bdg(t){return '<span style="background:rgba(255,255,255,.12);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;color:#fff;display:inline-block;margin:2px">'+t+'</span>';}
+function cbox(lbl,k,val,ns){
+  return '<div class="cbox"><div class="cbox-l">'+lbl+'</div><div class="cmin">'
+    +'<button class="cb" onclick="'+ns+'.'+k+'=Math.max(0,'+ns+'.'+k+'-1);document.getElementById(\'cv_'+k+'\').textContent='+ns+'.'+k+'">&#8722;</button>'
+    +'<span class="cv" id="cv_'+k+'">'+val+'</span>'
+    +'<button class="cb" onclick="'+ns+'.'+k+'++;document.getElementById(\'cv_'+k+'\').textContent='+ns+'.'+k+'">+</button>'
+    +'</div></div>';
+}
+function maStepper(ns,val){
+  return '<div class="ma-stp">'
+    +'<button class="ma-btn" onclick="chgMA(\''+ns+'\',-1)">&#8722;</button>'
+    +'<span class="ma-val" id="ma_'+ns+'">'+val+'</span>'
+    +'<button class="ma-btn" onclick="chgMA(\''+ns+'\',1)">+</button>'
+    +'</div>';
+}
+function chgMA(ns,d){var o=ns==='U'?U:ns==='B'?B:F;o.ma=Math.max(1,Math.min(5,o.ma+d));var e=document.getElementById('ma_'+ns);if(e)e.textContent=o.ma;}
+function calcFahrt(m,ma,r){return (m/60)*r*ma;} // nur Rueckfahrt
+function fmtTage(tageExakt,stdTag){
+  var vT=Math.floor(tageExakt);
+  var rSE=(tageExakt-vT)*stdTag;
+  var rS=Math.floor(rSE);
+  var rM=Math.round((rSE-rS)*60);
+  if(rM===60){rS++;rM=0;}
+  var ts=vT>0?(vT+(vT===1?' Tag':' Tage')):'';
+  var ss=rS>0?(rS+' Std.'):'';
+  var ms=rM>0?(rM+' Min.'):'';
+  var zt=[ss,ms].filter(Boolean).join(' ');
+  if(!ts&&!zt)return '0';
+  if(!zt)return ts;
+  if(!ts)return zt;
+  return ts+' + '+zt;
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDash(){
+  var uc=SAVED.filter(function(s){return s.type==='unt';}).length;
+  var bc=SAVED.filter(function(s){return s.type==='bau';}).length;
+  var fc=SAVED.filter(function(s){return s.type==='fen';}).length;
+  var tot=SAVED.length;
+  var offen=SAVED.filter(function(s){return s.status==='Offen';}).length;
+  var ang=SAVED.filter(function(s){return s.status==='Angenommen';}).length;
+
+  var h='<div class="dash-hdr">'
+    +'<button class="dash-gear" onclick="openSettings()">&#9881;</button>'
+    +'<div class="dash-logo-wrap">'
+    +'<div class="dash-logo-ic">&#x1F934;</div>'
+    +'<div><div class="dash-nm">cobutlers</div><div class="dash-sub">Gebaeudereinigung</div></div>'
+    +'</div>'
+    +'<div class="dash-addr">'+C.firmStr+' &middot; '+C.firmPlz+'</div>'
+    +'</div>';
+
+  h+='<div class="dash-pg">';
+  h+='<div class="dsec">Uebersicht</div>';
+  h+='<div class="dstats">';
+  h+='<div class="dstat"><div class="dstat-v">'+tot+'</div><div class="dstat-l">Gesamt</div></div>';
+  h+='<div class="dstat"><div class="dstat-v">'+offen+'</div><div class="dstat-l">Offen</div></div>';
+  h+='<div class="dstat"><div class="dstat-v">'+ang+'</div><div class="dstat-l">Angenommen</div></div>';
+  h+='</div>';
+
+  h+='<div class="dsec">Reinigungsart waehlen</div>';
+  var mods=[
+    {id:'unt',icon:'&#x1F3E2;',title:'Unterhalt',desc:'Buero, Praxis, Schule, Kindergarten',cnt:uc,cls:'unt'},
+    {id:'bau',icon:'&#x1F3D7;&#xFE0F;',title:'Baureinigung',desc:'Quick- und Feinreinigung nach Aufmass',cnt:bc,cls:'bau'},
+    {id:'fen',icon:'&#x1FA9F;',title:'Fensterreinigung',desc:'Glasflaechen beidseitig nach Gruppen',cnt:fc,cls:'fen'}
+  ];
+  mods.forEach(function(m){
+    h+='<div class="dmod"><div class="dmod-top">'
+      +'<div class="dmod-ic '+m.cls+'">'+m.icon+'</div>'
+      +'<div style="flex:1"><div class="dmod-title">'+m.title+'</div><div class="dmod-desc">'+m.desc+'</div></div>'
+      +(m.cnt>0?'<div class="dmod-cnt">'+m.cnt+'</div>':'')
+      +'</div><div class="dmod-btns">'
+      +'<button class="dmod-btn new" data-mod="'+m.id+'" onclick="goMod(this.dataset.mod,true)">&#43; Neue Kalkulation</button>'
+      +'<button class="dmod-btn arch" data-mod="'+m.id+'" onclick="goArch(this.dataset.mod)">'
+      +(m.cnt>0?'&#x1F4CB; Archiv ('+m.cnt+')':'&#x1F4CB; Archiv')
+      +'</button></div></div>';
+  });
+  h+='</div>';
+  return h;
+}
+
+// ============================================================
+// COPY BOX
+// ============================================================
+function buildCopyText(type){
+  var lines=[];
+  if(type==='unt'){
+    var c=calcU();
+    var dayStr=U.tage.length?U.tage.map(function(i){return DAYS[i];}).join(', '):'flexibel';
+    var finalP=29*c.stdMo*liveAdj.unt;
+    lines.push('=== UNTERHALTSREINIGUNG ===');
+    lines.push('Kunde: '+(U.fn||'-'));
+    lines.push('Adresse: '+(U.fa||'-'));
+    lines.push('Ansprechpartner: '+(U.fap||'-'));
+    lines.push('Telefon: '+(U.ftel||'-'));
+    lines.push('');
+    lines.push('Objektart: '+U.oa);
+    lines.push('Intervall: '+U.turnus);
+    lines.push('Reinigungstage: '+dayStr);
+    if(U.uhr)lines.push('Uhrzeit ab: '+U.uhr+' Uhr');
+    lines.push('Mitarbeiter: '+U.ma);
+    lines.push('');
+    lines.push('Std. pro Reinigung: '+c.stdR.toFixed(2)+' Std.');
+    lines.push('Einsaetze pro Monat: '+c.einsMo.toFixed(1));
+    lines.push('');
+    lines.push('--- PAKETE ---');
+    [{n:'Quick',r:23},{n:'Basic',r:29},{n:'Premium',r:35}].forEach(function(p){
+      var u=p.r*c.stdMo;
+      var k=c.lohnMo+u*(C.mat/100);
+      var g=u-k;
+      lines.push(p.n+': '+fmt(u)+'/Mo. (Gewinn: '+fmt(g)+')');
+    });
+    lines.push('');
+    lines.push('ANGEBOTSPREIS: '+fmt(finalP)+' / Monat (netto)');
+  } else if(type==='bau'){
+    var c=calcB();
+    var finalP=c.preisInkl*liveAdj.bau;
+    lines.push('=== BAUREINIGUNG ===');
+    lines.push('Kunde: '+(B.fn||'-'));
+    lines.push('Adresse: '+(B.fa||'-'));
+    lines.push('Ansprechpartner: '+(B.fap||'-'));
+    lines.push('Telefon: '+(B.ftel||'-'));
+    lines.push('');
+    lines.push('Art: '+B.art);
+    lines.push('Verschmutzung: '+B.schmutz);
+    lines.push('Mitarbeiter: '+B.ma);
+    lines.push('Rueckfahrt: '+B.fahrtMin+' Min.');
+    lines.push('');
+    lines.push('FLAECHEN PRO ETAGE');
+    B.etagen.forEach(function(e){if(e.m2>0)lines.push(e.name+': '+e.m2+' m2');});
+    var totM2=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);
+    lines.push('Gesamt: '+totM2.toFixed(0)+' m2');
+    lines.push('');
+    lines.push('Einsatztage: '+c.tage+(c.tage===1?' Tag':' Tage'));
+    lines.push('Tatsaechliche Arbeitszeit: '+fmtTage(c.tageExakt,C.stdTag));
+    lines.push('Preis/m2 (Preisblatt): '+c.pricePerM2.toFixed(2).replace('.',',')+' Euro');
+    lines.push('');
+    lines.push('ANGEBOTSPREIS: '+fmt(finalP)+' (netto)');
+  } else {
+    var c=calcF();
+    var finalP=c.fein.preis*liveAdj.fen;
+    lines.push('=== FENSTERREINIGUNG ===');
+    lines.push('Kunde: '+(F.fn||'-'));
+    lines.push('Adresse: '+(F.fa||'-'));
+    lines.push('Ansprechpartner: '+(F.fap||'-'));
+    lines.push('Telefon: '+(F.ftel||'-'));
+    lines.push('');
+    lines.push('Glasflaeche beidseitig: '+c.totalM2beid.toFixed(1)+' m2');
+    lines.push('Mitarbeiter: '+F.ma);
+    lines.push('Fahrt (einfach): '+F.fahrtMin+' Min.');
+    lines.push('');
+    lines.push('FEIN: '+c.fein.tage+' Tag(e) | '+fmtTage(c.fein.tageExakt,C.stdTag));
+    lines.push('QUICK: '+c.quick.tage+' Tag(e) | '+fmtTage(c.quick.tageExakt,C.stdTag));
+    lines.push('');
+    F.gruppen.forEach(function(g,i){
+      var t=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
+      var typLabel=getFenTyp(g.typ||'standard')[1];
+      if(t>0)lines.push(typLabel+' '+g.b+'m x '+g.h+'m x '+g.anz+' Stk. = '+(t*2).toFixed(1)+' m2 beids.');
+    });
+    lines.push('');
+    lines.push('ANGEBOTSPREIS FEIN: '+fmt(finalP)+' (netto)');
+    lines.push('ANGEBOTSPREIS QUICK: '+fmt(c.fein.preis*0.72*liveAdj.fen)+' (netto, -28%)');
+  }
+  return lines.join('\n');
+}
+
+function copyBox(type){
+  var txt=buildCopyText(type);
+  return '<div class="copy-box">'
+    +'<div class="copy-box-title">&#x1F4CB; Daten kopieren</div>'
+    +'<div class="copy-text" id="copyTxt">'+txt.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>'
+    +'<button class="copy-btn" id="copyBtn" onclick="doCopy(\''+type+'\')">'
+    +'&#x2398; Alles in Zwischenablage kopieren'
+    +'</button></div>';
+}
+
+function doCopy(type){
+  var txt=buildCopyText(type);
+  var el=document.getElementById('copyBtn');
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(function(){
+      el.innerHTML='&#10003; Kopiert!';
+      el.className='copy-btn copied';
+      showToast('In Zwischenablage kopiert!');
+      setTimeout(function(){el.innerHTML='&#x2398; Alles in Zwischenablage kopieren';el.className='copy-btn';},2000);
+    });
+  } else {
+    var ta=document.createElement('textarea');
+    ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    el.innerHTML='&#10003; Kopiert!';el.className='copy-btn copied';
+    showToast('Kopiert!');
+    setTimeout(function(){el.innerHTML='&#x2398; Alles in Zwischenablage kopieren';el.className='copy-btn';},2000);
+  }
+}
+
+// ============================================================
+// SAVE / ARCHIVE
+// ============================================================
+function saveKalk(type,finalP){
+  var name,detail;
+  if(type==='unt'){var c=calcU();name=U.fn||'Unbekannt';detail=U.turnus+' | '+U.ma+'MA | '+c.stdR.toFixed(2)+' Std.';}
+  else if(type==='bau'){var c=calcB();var totM2=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);name=B.fn||'Unbekannt';detail=totM2.toFixed(0)+' m2 | '+B.art+' | '+B.ma+'MA';}
+  else{var c=calcF();name=F.fn||'Unbekannt';detail=c.totalM2beid.toFixed(1)+' m2 beids. | '+F.ma+'MA';}
+  SAVED.push({type:type,name:name,detail:detail,price:fmt(finalP),date:now(),
+    status:'Offen',photos:[],data:JSON.parse(JSON.stringify(type==='unt'?U:type==='bau'?B:F))});
+  try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
+  showToast('Gespeichert!');
+}
+
+function setStatus(idx,st){
+  SAVED[idx].status=st;
+  try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
+  render();
+}
+
+function delSaved(idx){
+  SAVED.splice(idx,1);
+  try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
+  render();
+}
+
+// Mail direkt aus Kalkulations-Screen (Live-Daten)
+function sendKalkMail(type){
+  var txt=buildCopyText(type);
+  var typeLabel={unt:'Unterhaltsreinigung',bau:'Baureinigung',fen:'Fensterreinigung'}[type];
+  var name=type==='unt'?U.fn:type==='bau'?B.fn:F.fn;
+  var betreff=typeLabel+' – '+(name||'Neue Kalkulation')+' – '+now();
+  window.location.href='mailto:'+C.firmEmail+'?subject='+encodeURIComponent(betreff)+'&body='+encodeURIComponent(txt);
+  showToast('Mail-App wird geoeffnet...');
+}
+
+function sendArchivMail(idx){
+  var s=SAVED[idx];
+  if(!s)return;
+  var d=s.data||{};
+  var lines=[];
+  var typeLabel={unt:'Unterhaltsreinigung',bau:'Baureinigung',fen:'Fensterreinigung'}[s.type]||s.type;
+
+  lines.push('KALKULATION '+typeLabel.toUpperCase());
+  lines.push('================================');
+  lines.push('Datum: '+s.date);
+  lines.push('Status: '+s.status);
+  lines.push('');
+  lines.push('KUNDE');
+  lines.push('Firma: '+(d.fn||s.name||'–'));
+  lines.push('Adresse: '+(d.fa||'–'));
+  lines.push('Telefon: '+(d.ftel||'–'));
+  lines.push('E-Mail: '+(d.fe||'–'));
+  lines.push('Ansprechpartner: '+(d.fap||'–'));
+  lines.push('');
+
+  if(s.type==='unt'){
+    var DAYS=['Mo','Di','Mi','Do','Fr','Sa','So'];
+    var dayStr=d.tage&&d.tage.length?d.tage.map(function(i){return DAYS[i];}).join(', '):'flexibel';
+    lines.push('OBJEKT');
+    lines.push('Objektart: '+(d.oa||'–'));
+    lines.push('Zugang: '+[(d.zs?'Schluessel':''), (d.zc?'Chip':''), (d.zp?'Code':'')].filter(Boolean).join(', ')||'–');
+    lines.push('');
+    lines.push('REINIGUNG');
+    lines.push('Intervall: '+(d.turnus||'–'));
+    lines.push('Reinigungstage: '+dayStr);
+    lines.push('Uhrzeit ab: '+(d.uhr||'–')+' Uhr');
+    lines.push('Mitarbeiter: '+(d.ma||1));
+    lines.push('');
+    lines.push('FLAECHEN');
+    if(d.raeume){
+      d.raeume.forEach(function(r){if(r.m2>0)lines.push(r.n+': '+r.m2+' m2');});
+    }
+    var san=d;
+    var sanParts=[];
+    if(san.hWC>0)sanParts.push('Herren-WC: '+san.hWC);
+    if(san.dWC>0)sanParts.push('Damen-WC: '+san.dWC);
+    if(san.hD>0)sanParts.push('H-Dusche: '+san.hD);
+    if(san.dD>0)sanParts.push('D-Dusche: '+san.dD);
+    if(san.pis>0)sanParts.push('Pissoir: '+san.pis);
+    if(san.bWC>0)sanParts.push('Behinderten-WC: '+san.bWC);
+    if(sanParts.length)lines.push('Sanitaer: '+sanParts.join(', '));
+    lines.push('');
+    lines.push('LEISTUNGEN');
+    var lv=[];
+    if(d.muell)lv.push('Muell entleeren');
+    if(d.nach)lv.push('Hygiene nachfuellen');
+    if(d.ofl)lv.push('Oberflaechen abwischen');
+    if(d.tg)lv.push('Griffzonen desinfizieren');
+    if(d.spi)lv.push('Spiegel');
+    if(d.fenI)lv.push('Fenster innen');
+    if(d.kuehl)lv.push('Kueche/Geraete');
+    lines.push(lv.join(', '));
+    if(d.notes)lines.push('Notizen: '+d.notes);
+
+  } else if(s.type==='bau'){
+    lines.push('OBJEKT');
+    lines.push('FLAECHEN PRO ETAGE');
+    if(d.etagen&&d.etagen.length){
+      d.etagen.forEach(function(e){if(e.m2>0)lines.push(e.name+': '+e.m2+' m2');});
+      var totM2=d.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);
+      lines.push('Gesamt: '+totM2.toFixed(0)+' m2');
+    } else {
+      lines.push('Flaeche: '+(d.m2||'–')+' m2');
+    }
+    lines.push('Reinigungsart: '+(d.art||'–'));
+    lines.push('Verschmutzungsgrad: '+(d.schmutz||'–'));
+    lines.push('Mitarbeiter: '+(d.ma||2));
+    lines.push('Fahrtzeit (einfach): '+(d.fahrtMin||60)+' Min.');
+    var bes=[];
+    if(d.klebe)bes.push('Klebstoff');
+    if(d.farbe)bes.push('Farbreste');
+    if(d.gips)bes.push('Gips/Putz');
+    if(d.folie)bes.push('Schutzfolien');
+    if(d.fliesen)bes.push('Fliesenreste');
+    if(d.sonder)bes.push('Sonderarbeiten');
+    if(bes.length)lines.push('Besonderheiten: '+bes.join(', '));
+    if(d.notes)lines.push('Notizen: '+d.notes);
+
+  } else {
+    lines.push('AUFMASS GLASFLAECHEN');
+    if(d.gruppen){
+      d.gruppen.forEach(function(g,i){
+        var t=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
+        if(t>0)lines.push('Gruppe '+(i+1)+': '+g.b+'m x '+g.h+'m x '+g.anz+' Stk. = '+(t*2).toFixed(1)+' m2 beids.');
+      });
+    }
+    lines.push('Reinigungsart: '+(d.art||'–'));
+    lines.push('Mitarbeiter: '+(d.ma||1));
+    lines.push('Fahrtzeit (einfach): '+(d.fahrtMin||60)+' Min.');
+  }
+
+  lines.push('');
+  lines.push('================================');
+  lines.push('ANGEBOTSPREIS: '+s.price+' (netto)');
+  lines.push('Status: '+s.status);
+  lines.push('');
+  lines.push('-- '+C.firmName);
+  lines.push(C.firmStr+', '+C.firmPlz);
+  lines.push(C.firmTel+' | '+C.firmEmail);
+
+  var betreff=typeLabel+' – '+(d.fn||s.name||'Kunde')+' – '+s.date;
+  var body=lines.join('\n');
+  window.location.href='mailto:'+C.firmEmail+'?subject='+encodeURIComponent(betreff)+'&body='+encodeURIComponent(body);
+  showToast('Mail-App wird geoeffnet...');
+}
+
+function loadSaved(idx){
+  var s=SAVED[idx];
+  if(s.type==='unt'){Object.assign(U,s.data);untStep=4;SCR='unt';}
+  else if(s.type==='bau'){Object.assign(B,s.data);bauStep=2;SCR='bau';}
+  else{Object.assign(F,s.data);fenStep=2;SCR='fen';}
+  liveAdj[s.type]=1.0;
+  render();
+}
+
+function renderArch(mod){
+  var items=[];
+  SAVED.forEach(function(s,i){if(s.type===mod)items.push({s:s,i:i});});
+  var titles={unt:'Unterhalt',bau:'Baureinigung',fen:'Fensterreinigung'};
+  var h='<div class="pg">';
+  h+='<button class="arch-new-btn" onclick="goMod(\''+mod+'\',true)">+ Neue Kalkulation</button>';
+  if(!items.length){
+    h+='<div class="arch-empty"><div style="font-size:36px;margin-bottom:10px">&#x1F4CB;</div>'
+      +'Noch keine Kalkulationen gespeichert.</div>';
+  } else {
+    items.slice().reverse().forEach(function(o){
+      var s=o.s,i=o.i;
+      var scls='status-chip on-'+s.status.toLowerCase();
+      h+='<div class="arch-item" onclick="loadSaved('+i+')">';
+      h+='<div class="arch-top">';
+      h+='<div><div class="arch-name">'+(s.name||'–')+'</div><div class="arch-det">'+s.detail+'</div></div>';
+      h+='<div class="arch-right"><div class="arch-price">'+s.price+'</div><div class="arch-date">'+s.date+'</div></div>';
+      h+='</div>';
+      // Status + Fotos Vorschau
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">';
+      h+='<div class="status-row" style="margin-top:0">';
+      STATUS_OPTS.forEach(function(st){
+        h+='<button class="status-chip'+(s.status===st?' on-'+st.toLowerCase():'')+'" onclick="event.stopPropagation();setStatus('+i+',\''+st+'\')">'+st+'</button>';
+      });
+      h+='</div>';
+      if(s.photos&&s.photos.length){
+        h+='<div style="font-size:11px;color:var(--g400);white-space:nowrap;margin-left:8px">'+s.photos.length+' &#x1F4F7;</div>';
+      }
+      h+='</div>';
+      h+='<div class="arch-bottom" style="margin-top:8px">';
+      h+='<button class="arch-del" onclick="event.stopPropagation();addPhoto('+i+')">+ Foto</button>';
+      h+='<button class="arch-del" onclick="event.stopPropagation();sendArchivMail('+i+')" style="color:var(--gd);border-color:var(--gd)">&#9993; Mail</button>';
+      h+='<button class="arch-del" onclick="event.stopPropagation();delSaved('+i+')">&#x2715;</button>';
+      h+='</div>';
+      // Photo thumbs
+      if(s.photos&&s.photos.length){
+        h+='<div class="photo-grid" style="margin-top:8px">';
+        s.photos.forEach(function(p,pi){
+          h+='<div class="photo-thumb" onclick="event.stopPropagation()">'
+            +'<img src="'+p+'">'
+            +'<button class="photo-del" onclick="event.stopPropagation();delPhoto('+i+','+pi+')">&#x2715;</button>'
+            +'</div>';
+        });
+        h+='</div>';
+      }
+      h+='</div>';
+    });
+  }
+  h+='</div>';
+  return h;
+}
+
+// ============================================================
+// PHOTOS
+// ============================================================
+function addPhoto(savedIdx){
+  currentPhotoTarget=savedIdx;
+  document.getElementById('photoInput').click();
+}
+function handlePhoto(input){
+  if(!input.files||!input.files[0]||currentPhotoTarget===null)return;
+  var file=input.files[0];
+  var reader=new FileReader();
+  reader.onload=function(e){
+    if(!SAVED[currentPhotoTarget].photos)SAVED[currentPhotoTarget].photos=[];
+    SAVED[currentPhotoTarget].photos.push(e.target.result);
+    try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
+    currentPhotoTarget=null;
+    input.value='';
+    render();
+    showToast('Foto gespeichert!');
+  };
+  reader.readAsDataURL(file);
+}
+function delPhoto(savedIdx,photoIdx){
+  SAVED[savedIdx].photos.splice(photoIdx,1);
+  try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
+  render();
+}
+
+// ============================================================
+// UNTERHALT
+// ============================================================
+function getTF(){var m={taeglich:22,woechentlich:4.33,'2x':8.66,'3x':13,'4x':17.3,monatlich:1};return m[U.turnus]||4.33;}
+function calcU(){
+  var fak=1+(U.bT?0.15:0)+(U.bS?0.10:0);
+  var stdR=0;
+  U.raeume.forEach(function(r){if(r.m2>0)stdR+=r.m2/(r.mh/fak);});
+  stdR+=(U.hWC+U.dWC)*0.10+(U.hD+U.dD)*0.12+U.pis*0.05+U.bWC*0.15;
+  if(U.fenI)stdR*=1.08;if(U.kuehl)stdR+=0.25;
+  var einsMo=getTF(),stdMo=stdR*einsMo,lohnMo=stdMo*C.untR;
+  return {stdR:stdR,stdMo:stdMo,einsMo:einsMo,lohnMo:lohnMo,fahrtMo:0};
+}
+function renderUnt(){
+  if(untStep===0)return uS0();
+  if(untStep===1)return uS1();
+  if(untStep===2)return uS2();
+  if(untStep===3)return uS3();
+  return uS4();
+}
+function uS0(){
+  var h='<div class="pg"><div class="sec">Kundeninformationen</div><div class="card">';
+  h+=inp('Firma / Kunde','text','u_fn',U.fn,'Musterfirma GmbH');
+  h+=inp('Adresse','text','u_fa',U.fa,'Strasse, PLZ Ort');
+  h+=inp('Telefon','tel','u_ftel',U.ftel,'+49 ...');
+  h+=inp('E-Mail','email','u_fe',U.fe,'kunde@firma.de');
+  h+=inp('Ansprechpartner','text','u_fap',U.fap,'Vor- und Nachname');
+  h+='</div>';
+  h+='<div class="sec">Objektart</div><div class="card"><div class="chips">';
+  ARTEN.forEach(function(a){h+='<button class="chip'+(U.oa===a[0]?' on':'')+'" onclick="U.oa=\''+a[0]+'\';render()">'+a[1]+'</button>';});
+  h+='</div></div>';
+  h+='<div class="sec">Zugang</div><div class="card">';
+  h+=trow('Schluessel','u_zs',U.zs,'U.zs=this.checked');
+  h+=trow('Chip / Transponder','u_zc',U.zc,'U.zc=this.checked');
+  h+=trow('Code / PIN','u_zp',U.zp,'U.zp=this.checked');
+  h+='</div>';
+  h+='<div class="sec">Mitarbeiter</div><div class="card"><div class="fld"><label class="flbl">Anzahl Mitarbeiter</label>'+maStepper('U',U.ma)+'</div></div>';
+  h+='<div class="nav"><button class="btn-next" style="flex:1" onclick="uN(0)">Weiter</button></div></div>';
+  return h;
+}
+function uS1(){
+  var h='<div class="pg"><div class="sec">Reinigungsintervall</div><div class="card"><div class="chips">';
+  TURN.forEach(function(t){h+='<button class="chip'+(U.turnus===t[0]?' on':'')+'" onclick="U.turnus=\''+t[0]+'\';render()">'+t[1]+'</button>';});
+  h+='</div></div>';
+  h+='<div class="sec">Reinigungstage</div><div class="card"><div class="days">';
+  DAYS.forEach(function(d,i){h+='<button class="day'+(U.tage.indexOf(i)>=0?' on':'')+'" onclick="uTD('+i+')">'+d+'</button>';});
+  h+='</div></div>';
+  h+='<div class="sec">Uhrzeit &amp; Flaeche</div><div class="card">';
+  h+=inp('Reinigung ab','time','u_uhr',U.uhr,'');
+  h+=inp('Gesamtflaeche ca.','number','u_of',U.of,'500','m2');
+  h+='</div><div class="nav"><button class="btn-back" onclick="untStep=0;render()">&#8592;</button><button class="btn-next" onclick="uN(1)">Weiter</button></div></div>';
+  return h;
+}
+function uTD(i){var x=U.tage.indexOf(i);if(x>=0)U.tage.splice(x,1);else U.tage.push(i);render();}
+function uS2(){
+  var h='<div class="pg"><div class="sec">Flaechen nach Raumtyp</div><div class="card">';
+  U.raeume.forEach(function(r,i){
+    h+='<div class="fld"><label class="flbl">'+r.n+' <span style="font-weight:400;color:var(--g400)">('+r.mh+' m&#178;/h)</span></label>'
+      +'<div class="frow"><input class="inp" type="number" id="ur'+i+'" value="'+(r.m2||'')+'" placeholder="0" inputmode="decimal"><span class="unit">m&#178;</span></div></div>';
+  });
+  h+='</div><div class="sec">Sanitaer</div><div class="card"><div class="ctr-grid">';
+  h+=cbox('Herren-WC','hWC',U.hWC,'U');h+=cbox('Damen-WC','dWC',U.dWC,'U');
+  h+=cbox('H-Dusche','hD',U.hD,'U');h+=cbox('D-Dusche','dD',U.dD,'U');
+  h+=cbox('Pissoir','pis',U.pis,'U');h+=cbox('Behinderten-WC','bWC',U.bWC,'U');
+  h+='</div></div><div class="nav"><button class="btn-back" onclick="untStep=1;render()">&#8592;</button><button class="btn-next" onclick="uN(2)">Weiter</button></div></div>';
+  return h;
+}
+function uS3(){
+  var h='<div class="pg"><div class="sec">Bodenbelaege</div><div class="card">';
+  h+=trow('Fliesen','u_bF',U.bF,'U.bF=this.checked');h+=trow('Teppich','u_bT',U.bT,'U.bT=this.checked');
+  h+=trow('PVC / Vinyl','u_bP',U.bP,'U.bP=this.checked');h+=trow('Parkett / Laminat','u_bPa',U.bPa,'U.bPa=this.checked');
+  h+=trow('Naturstein / Marmor','u_bS',U.bS,'U.bS=this.checked');
+  h+='</div><div class="sec">Leistungen</div><div class="card">';
+  h+=trow('Muell entleeren + neue Beutel','u_muell',U.muell,'U.muell=this.checked');
+  h+=trow('Hygieneartikel nachfuellen','u_nach',U.nach,'U.nach=this.checked','Seife, Papier etc.');
+  h+=trow('Oberflaechen abwischen','u_ofl',U.ofl,'U.ofl=this.checked','Tische, Regale, Schalter');
+  h+=trow('Tuer- &amp; Griffzonen','u_tg',U.tg,'U.tg=this.checked');
+  h+=trow('Spiegel reinigen','u_spi',U.spi,'U.spi=this.checked');
+  h+=trow('Fenster innen','u_fenI',U.fenI,'U.fenI=this.checked');
+  h+=trow('Kueche / Geraete','u_kuehl',U.kuehl,'U.kuehl=this.checked','Kuehlschrank, Mikrowelle');
+  h+='</div><div class="sec">Notizen</div><div class="card">';
+  h+='<textarea class="inp" id="u_notes" placeholder="Alarmanlage, Besonderheiten, Sonderwuensche...">'+U.notes+'</textarea>';
+  h+='</div><div class="nav"><button class="btn-back" onclick="untStep=2;render()">&#8592;</button><button class="btn-next" onclick="uN(3)">Berechnen</button></div></div>';
+  return h;
+}
+function uN(s){
+  if(s===0){U.fn=gv('u_fn');U.fa=gv('u_fa');U.ftel=gv('u_ftel');U.fe=gv('u_fe');U.fap=gv('u_fap');}
+  if(s===1){U.uhr=gv('u_uhr');U.of=gv('u_of');}
+  if(s===2){U.raeume.forEach(function(r,i){r.m2=parseFloat(gv('ur'+i))||0;});}
+  if(s===3){U.notes=gv('u_notes');}
+  untStep=s+1;liveAdj.unt=1.0;render();
+}
+function uS4(){
+  var c=calcU();
+  var stdR=c.stdR,stdMo=c.stdMo,einsMo=c.einsMo,lohnMo=c.lohnMo;
+  var dayStr=U.tage.length?U.tage.map(function(i){return DAYS[i];}).join(', '):'flexibel';
+  var m2tot=U.raeume.reduce(function(s,r){return s+r.m2;},0);
+  var h='<div class="pg">';
+  h+='<div class="rcard"><div class="rhead">OBJEKT</div>'
+    +'<div style="font-size:14px;font-weight:700;margin-bottom:3px">'+(U.fn||'–')+'</div>'
+    +'<div style="font-size:11px;color:var(--g400)">'+(U.fa||'')+(U.fe?' | '+U.fe:'')+'</div>'
+    +'<div style="font-size:11px;color:var(--g400);margin-bottom:8px">AP: '+(U.fap||'–')+(U.ftel?' | '+U.ftel:'')+'</div>'
+    +'<div style="display:flex;flex-wrap:wrap">'+bdg(U.oa)+bdg(U.turnus)+bdg(dayStr)+(U.uhr?bdg('ab '+U.uhr):'')+bdg(U.ma+' MA')+bdg(m2tot+' m&#178;')+'</div></div>';
+  h+='<div class="sec">Zeitkalkulation</div>';
+  h+='<div class="rcard"><div class="rhead">ZEITBEDARF</div><div class="rgrid">'
+    +rb('Std./Reinigung',stdR.toFixed(2)+' Std.','')+rb('Einsaetze/Mo.',einsMo.toFixed(1),'')
+    +rb('Std./Monat',stdMo.toFixed(1)+' Std.','')+rb('Lohn/Mo.',fmt(lohnMo),'','rd')
+    +'</div><div class="bk"><div class="bk-t">Raumaufschluesselung</div>';
+  var fak=1+(U.bT?0.15:0)+(U.bS?0.10:0);
+  U.raeume.forEach(function(r){if(r.m2>0)h+=bkrow(r.n+' ('+r.m2+' m&#178;)',(r.m2/(r.mh/fak)).toFixed(2)+' Std.');});
+  var sanZ=(U.hWC+U.dWC)*0.10+(U.hD+U.dD)*0.12+U.pis*0.05+U.bWC*0.15;
+  if(sanZ>0)h+=bkrow('Sanitaer-Aufschlag',sanZ.toFixed(2)+' Std.');
+  h+='<hr class="bkd"><div class="bktot"><span>Gesamt/Reinigung</span><span class="bktot-v">'+stdR.toFixed(2)+' Std.</span></div></div></div>';
+  h+='<div class="sec">Paketvergleich</div>';
+  h+='<div class="rcard"><div class="rhead">MONATSPREISE</div>';
+  [{n:'Quick',r:23},{n:'Basic',r:29},{n:'Premium',r:35}].forEach(function(p){
+    var u=p.r*stdMo,k=lohnMo+u*(C.mat/100),g=u-k,mg=(g/u*100).toFixed(1);
+    h+='<div class="pkg-row"><div><div class="pkg-n">'+p.n+' &middot; '+p.r+' Euro/Std.</div><div class="pkg-d">Marge: '+mg+'% &middot; Gewinn: '+fmt(g)+'/Mo.</div></div>'
+      +'<div><div class="pkg-a">'+fmt(u)+'</div><div class="pkg-m">/ Monat</div></div></div>';
+  });
+  h+='</div>';
+  var basePreis=29*stdMo;
+  var liveP=basePreis*liveAdj.unt;
+  var liveK=lohnMo+liveP*(C.mat/100);
+  var liveG=liveP-liveK;
+  var liveM=(liveG/liveP*100).toFixed(1);
+  var mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
+  h+='<div class="pbox"><div class="pbox-l">Live-Preisanpassung (Basic)</div>'
+    +'<div class="pbox-v" id="liveP_unt">'+fmt(liveP)+'</div>'
+    +'<div class="pbox-s">/ Monat &middot; '+stdR.toFixed(2)+' Std./Reinigung</div>'
+    +'<div class="slider-wrap"><div class="slider-lbl">Verhandlungsregler</div>'
+    +'<div class="slider-row"><span class="slider-min">-30%</span>'
+    +'<input type="range" class="slider" id="sl_unt" min="70" max="130" value="'+(liveAdj.unt*100)+'" oninput="adjP(\'unt\',this.value)">'
+    +'<span class="slider-max">+30%</span></div>'
+    +'<div class="slider-info">'
+    +'<div class="sinfo-item">Anpassung<span class="sinfo-val" id="adj_unt">'+((liveAdj.unt-1)*100>=0?'+':'')+((liveAdj.unt-1)*100).toFixed(0)+'%</span></div>'
+    +'<div class="sinfo-item">Marge<span class="sinfo-val '+mc+'" id="marg_unt">'+liveM+'%</span></div>'
+    +'<div class="sinfo-item">Gewinn<span class="sinfo-val '+mc+'" id="gew_unt">'+fmt(liveG)+'</span></div>'
+    +'</div></div></div>';
+  h+=copyBox('unt');
+  h+='<div class="sec">Speichern &amp; Senden</div>';
+  h+='<div class="card"><div style="display:flex;gap:8px">'
+    +'<button onclick="saveKalk(\'unt\',29*calcU().stdMo*liveAdj.unt)" style="flex:1;height:46px;background:var(--navy);border:none;border-radius:12px;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer">&#x1F4BE; Speichern</button>'
+    +'<button onclick="sendKalkMail(\'unt\')" style="flex:1;height:46px;background:var(--gd);border:none;border-radius:12px;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer">&#9993; Per Mail</button>'
+    +'</div></div>';
+  h+='<div class="nav"><button class="btn-back" onclick="untStep=3;render()">&#8592;</button><button class="btn-next" onclick="resetU(false)">+ Neue</button></div></div>';
+  return h;
+}
+
+// ============================================================
+// BAUREINIGUNG
+// ============================================================
+function calcB(){
+  var m2=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);
+  var vf=B.schmutz==='leicht'?1.2:B.schmutz==='stark'?0.7:1.0;
+  var extra=(B.klebe?0.10:0)+(B.farbe?0.08:0)+(B.gips?0.06:0)+(B.folie?0.05:0)+(B.fliesen?0.05:0)+(B.sonder?0.10:0);
+  var effM2Tag=C.bauM2*B.ma*vf;
+  var tageExakt=m2/effM2Tag;
+  var tage=Math.ceil(tageExakt);
+  var stdVoll=tage*C.stdTag*B.ma;
+  var lohn=stdVoll*C.bauR;
+  var fahrt=tage*calcFahrt(B.fahrtMin,B.ma,C.bauR);
+  var pq=m2<=300?3.25:m2<=1000?2.50:1.50;
+  var pf=m2<=300?4.50:m2<=1000?3.50:2.50;
+  var pricePerM2=B.art==='quick'?pq:pf;
+  var basePreis=pricePerM2*m2;
+  var extraKosten=B.extraOn?basePreis*extra:0;
+  var preisInkl=B.extraOn?basePreis*(1+extra):basePreis;
+  var ueVariante=null;
+  if(tage>1){
+    var tm1=tage-1;
+    var ueStdProMA=(tageExakt-tm1)*C.stdTag;
+    if(ueStdProMA<=C.maxUeStd&&ueStdProMA>0){
+      var ueL=(tm1*C.stdTag*B.ma+ueStdProMA*B.ma)*C.bauR;
+      var ueF=tm1*calcFahrt(B.fahrtMin,B.ma,C.bauR);
+      var ueK=ueL+ueF+preisInkl*(C.mat/100);
+      var ueG=preisInkl-ueK;
+      ueVariante={tage:tm1,ueStdProMA:ueStdProMA,lohn:ueL,fahrt:ueF,kosten:ueK,gewinn:ueG,
+        marge:(ueG/preisInkl*100).toFixed(1),fahrtErsparnis:fahrt-ueF};
+    }
+  }
+  return {m2:m2,tage:tage,tageExakt:tageExakt,stdVoll:stdVoll,lohn:lohn,fahrt:fahrt,
+    basePreis:basePreis,preisInkl:preisInkl,extra:extra,extraKosten:extraKosten,pricePerM2:pricePerM2,ueVariante:ueVariante};
+}
+function renderBau(){if(bauStep===0)return bS0();if(bauStep===1)return bS1();return bS2();}
+function bS0(){
+  var h='<div class="pg"><div class="sec">Kundeninformationen</div><div class="card">';
+  h+=inp('Firma / Kunde','text','b_fn',B.fn,'Musterfirma GmbH');
+  h+=inp('Adresse','text','b_fa',B.fa,'Strasse, PLZ Ort');
+  h+=inp('Telefon','tel','b_ftel',B.ftel,'+49 ...');
+  h+=inp('E-Mail','email','b_fe',B.fe,'kunde@firma.de');
+  h+=inp('Ansprechpartner','text','b_fap',B.fap,'Vor- und Nachname');
+  h+='</div>';
+  h+='<div class="sec">Einsatzplanung</div><div class="card">';
+  h+='<div class="fld"><label class="flbl">Anzahl Mitarbeiter</label>'+maStepper('B',B.ma)+'</div>';
+  h+=inp('Rueckfahrt (Minuten)','number','b_fmin',B.fahrtMin,'30','Min');
+  h+='</div><div class="nav"><button class="btn-next" style="flex:1" onclick="bN(0)">Weiter</button></div></div>';
+  return h;
+}
+function bS1(){
+  var totalM2=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);
+  var h='<div class="pg">';
+  h+='<div class="sec">Flaechen pro Etage</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-bottom:10px;padding:0 2px">Jede Etage separat erfassen – z.B. aus dem Grundriss</div>';
+  B.etagen.forEach(function(e,i){
+    h+='<div class="card" style="margin-bottom:8px">';
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
+    h+='<div style="flex:1"><label class="flbl" style="margin:0">Bezeichnung</label></div>';
+    if(B.etagen.length>1)h+='<button class="del-btn" onclick="delEtage('+i+')">&#x2715;</button>';
+    h+='</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+    h+='<div><input class="inp" type="text" id="en'+i+'" value="'+e.name+'" placeholder="z.B. EG, OG1..." style="font-size:14px"></div>';
+    h+='<div><div class="frow"><input class="inp" type="number" id="em'+i+'" value="'+(e.m2||'')+'" placeholder="0" inputmode="decimal" style="font-size:14px" onchange="updEtage('+i+',this.value)"><span class="unit">m&#178;</span></div></div>';
+    h+='</div>';
+    h+='</div>';
+  });
+  h+='<button class="add-row" onclick="addEtage()">+ Weitere Etage hinzufuegen</button>';
+  // Gesamt
+  h+='<div style="background:var(--navy);border-radius:14px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center">';
+  h+='<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl)">Gesamtflaeche</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-top:2px">'+B.etagen.length+' Etage(n)</div></div>';
+  h+='<div style="font-size:24px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="bauTotM2">'+totalM2.toFixed(0)+' m&#178;</div>';
+  h+='</div>';
+  h+='<div class="sec">Reinigungsart</div><div class="card"><div class="type-row">'
+    +'<button class="topt'+(B.art==='quick'?' on':'')+'" onclick="B.art=\'quick\';render()">Quick</button>'
+    +'<button class="topt'+(B.art==='fein'?' on':'')+'" onclick="B.art=\'fein\';render()">Fein</button>'
+    +'</div></div>';
+  h+='<div class="sec">Verschmutzungsgrad</div><div class="card"><div class="chips">';
+  SCHMUTZ.forEach(function(s){h+='<button class="chip'+(B.schmutz===s[0]?' on':'')+'" onclick="B.schmutz=\''+s[0]+'\';render()">'+s[1]+'</button>';});
+  h+='</div></div>';
+  h+='<div class="sec">Besonderheiten</div><div class="card">';
+  h+=trow('Klebstoffreste','b_kl',B.klebe,'B.klebe=this.checked');
+  h+=trow('Farb- / Lackreste','b_fa2',B.farbe,'B.farbe=this.checked');
+  h+=trow('Gips / Putz','b_gi',B.gips,'B.gips=this.checked');
+  h+=trow('Schutzfolien entfernen','b_fo',B.folie,'B.folie=this.checked');
+  h+=trow('Fliesenreste / Moertel','b_fl',B.fliesen,'B.fliesen=this.checked');
+  h+=trow('Sonstige Sonderarbeiten','b_so',B.sonder,'B.sonder=this.checked');
+  h+='<div style="margin-top:8px;padding-top:10px;border-top:1.5px solid var(--gp)">';
+  h+=trow('Aufschlag auf Angebotspreis','b_exOn',B.extraOn,'B.extraOn=this.checked','Besonderheiten als % auf Preisblatt addieren');
+  h+='</div></div>';
+  h+='<div class="sec">Notizen</div><div class="card">';
+  h+='<textarea class="inp" id="b_notes" placeholder="Uebergabetermin, Besonderheiten...">'+B.notes+'</textarea>';
+  h+='</div><div class="nav"><button class="btn-back" onclick="bauStep=0;render()">&#8592;</button><button class="btn-next" onclick="bN(1)">Berechnen</button></div></div>';
+  return h;
+}
+
+function updEtage(i,v){
+  B.etagen[i].m2=parseFloat(v)||0;
+  var tot=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);
+  var el=document.getElementById('bauTotM2');if(el)el.textContent=tot.toFixed(0)+' m\u00b2';
+}
+function addEtage(){
+  var names=['EG','OG1','OG2','OG3','OG4','KG','DG','ZG'];
+  var next=names[Math.min(B.etagen.length,names.length-1)]||('Etage '+B.etagen.length);
+  B.etagen.push({name:next,m2:0});
+  render();
+}
+function delEtage(i){if(B.etagen.length>1){B.etagen.splice(i,1);render();}}
+
+function bN(s){
+  if(s===0){B.fn=gv('b_fn');B.fa=gv('b_fa');B.ftel=gv('b_ftel');B.fe=gv('b_fe');B.fap=gv('b_fap');B.fahrtMin=parseFloat(gv('b_fmin'))||60;}
+  if(s===1){
+    B.etagen.forEach(function(e,i){
+      e.name=gv('en'+i)||e.name;
+      e.m2=parseFloat(gv('em'+i))||0;
+    });
+    B.notes=gv('b_notes');
+  }
+  bauStep=s+1;liveAdj.bau=1.0;render();
+}
+function bS2(){
+  var totalM2=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);
+  if(!totalM2)return '<div class="pg"><div class="card" style="text-align:center;padding:30px"><div style="font-size:28px;margin-bottom:8px">&#9888;</div><div style="font-size:13px;color:var(--g600)">Bitte Flaechen eingeben</div></div>'
+    +'<div class="nav"><button class="btn-back" onclick="bauStep=1;render()">&#8592;</button></div></div>';
+  var c=calcB();
+  var startPreis=c.preisInkl;
+  var kosten=c.lohn+c.fahrt+startPreis*(C.mat/100);
+  var gewinn=startPreis-kosten;
+  var h='<div class="pg">';
+  h+='<div class="rcard"><div class="rhead">OBJEKT</div>'
+    +'<div style="font-size:14px;font-weight:700;margin-bottom:3px">'+(B.fn||'–')+'</div>'
+    +'<div style="font-size:11px;color:var(--g400);margin-bottom:8px">'+(B.fa||'')+'</div>'
+    +'<div style="display:flex;flex-wrap:wrap">'+bdg(c.m2+' m&#178; gesamt')+bdg(B.etagen.length+' Etage(n)')+bdg(B.art)+bdg(B.schmutz)+bdg(B.ma+' MA')+'</div></div>';
+  // Etagen Aufschluss
+  h+='<div class="sec">Flaechen pro Etage</div><div class="card">';
+  B.etagen.forEach(function(e){
+    if(e.m2>0)h+=bkrow(e.name,(parseFloat(e.m2)||0).toFixed(0)+' m&#178;');
+  });
+  h+='<hr class="bkd" style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700"><span>Gesamt</span><span style="font-family:\'DM Mono\',monospace;color:var(--gd)">'+totalM2.toFixed(0)+' m&#178;</span></div>';
+  h+='</div>';
+  h+='<div class="sec">Kalkulation</div>';
+  h+='<div class="rcard"><div class="rhead">BAUREINIGUNG '+B.art.toUpperCase()+'</div>'
+    +'<div class="rgrid">'
+    +rb('Preisblatt',fmt(c.pricePerM2)+'/m&#178;','Staffel: '+c.m2+' m&#178;')
+    +rb('Basispreis',fmt(c.basePreis),'exakt lt. Preisblatt')
+    +rb('Einsatztage',c.tage+(c.tage===1?' Tag':' Tage'),fmtTage(c.tageExakt,C.stdTag)+' &middot; '+B.ma+' MA')
+    +rb('Meine Kosten',fmt(kosten),'','rd')
+    +'</div>'
+    +'<div class="bk"><div class="bk-t">Kostenaufschluesselung</div>'
+    +bkrow('Lohn ('+c.stdVoll.toFixed(0)+' Std. / '+c.tage+' volle Tage)',fmt(c.lohn))
+    +bkrow('Fahrt Rueckfahrt ('+B.fahrtMin+'min x '+B.ma+'MA x '+c.tage+' T.)',fmt(c.fahrt))
+    +bkrow('Material ('+C.mat+'%)',fmt(startPreis*(C.mat/100)))
+    +(B.extraOn&&c.extra>0?'<div class="bkr"><span class="bkl" style="color:#ffb866">Aufschlag Besonderheiten ('+(c.extra*100).toFixed(0)+'%)</span><span class="bkv" style="color:#ffb866">+'+fmt(c.extraKosten)+'</span></div>':'')
+    +'<hr class="bkd"><div class="bktot"><span>Gesamtkosten</span><span class="bktot-v">'+fmt(kosten)+'</span></div></div></div>';
+  if(B.extraOn&&c.extra>0){
+    h+='<div style="background:rgba(248,185,74,.12);border:1.5px solid #ffb866;border-radius:12px;padding:12px;margin-bottom:10px">';
+    h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#e8954a;margin-bottom:6px">AUFSCHLAG</div>';
+    h+='<div class="bkr" style="background:none"><span style="font-size:12px;color:var(--g600)">Preisblatt-Basis:</span><span style="font-family:\'DM Mono\',monospace;font-size:13px">'+fmt(c.basePreis)+'</span></div>';
+    h+='<div class="bkr" style="background:none"><span style="font-size:12px;color:var(--g600)">Aufschlag:</span><span style="font-family:\'DM Mono\',monospace;font-size:13px;color:#e8954a">+'+fmt(c.extraKosten)+'</span></div>';
+    h+='<div class="bkr" style="background:none;font-weight:700"><span>Angebotspreis:</span><span style="font-family:\'DM Mono\',monospace;font-size:15px">'+fmt(c.preisInkl)+'</span></div>';
+    h+='</div>';
+  }
+  var liveP=startPreis*liveAdj.bau;
+  var liveK=c.lohn+c.fahrt+liveP*(C.mat/100);
+  var liveG=liveP-liveK;
+  var liveM=(liveG/liveP*100).toFixed(1);
+  var mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
+  h+='<div class="pbox"><div class="pbox-l">'+(B.extraOn&&c.extra>0?'Preis inkl. Aufschlag':'Preisblatt-Preis')+' &middot; Verhandlungsregler</div>'
+    +'<div class="pbox-v" id="liveP_bau">'+fmt(liveP)+'</div>'
+    +'<div class="pbox-s">netto &middot; '+c.pricePerM2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>'
+    +'<div class="slider-wrap"><div class="slider-lbl">Verhandlungsregler</div>'
+    +'<div class="slider-row"><span class="slider-min">-30%</span>'
+    +'<input type="range" class="slider" id="sl_bau" min="70" max="130" value="'+(liveAdj.bau*100)+'" oninput="adjP(\'bau\',this.value)">'
+    +'<span class="slider-max">+30%</span></div>'
+    +'<div class="slider-info">'
+    +'<div class="sinfo-item">Anpassung<span class="sinfo-val" id="adj_bau">'+((liveAdj.bau-1)*100>=0?'+':'')+((liveAdj.bau-1)*100).toFixed(0)+'%</span></div>'
+    +'<div class="sinfo-item">Marge<span class="sinfo-val '+mc+'" id="marg_bau">'+liveM+'%</span></div>'
+    +'<div class="sinfo-item">Gewinn<span class="sinfo-val '+mc+'" id="gew_bau">'+fmt(liveG)+'</span></div>'
+    +'</div></div></div>';
+  if(c.ueVariante){
+    var ue=c.ueVariante;
+    var stdStr=ue.ueStdProMA>=1?(Math.floor(ue.ueStdProMA)+'h '+(Math.round((ue.ueStdProMA%1)*60))+'min'):(Math.round(ue.ueStdProMA*60)+' Min');
+    var gwO=startPreis-kosten;
+    h+='<div class="sec">Vergleich: Normal vs. Ueberstunden</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
+    h+=ueCol('NORMAL',c.tage,fmtTage(c.tageExakt,C.stdTag),c.lohn,c.fahrt,kosten,gwO,false);
+    h+=ueCol('MIT UE',ue.tage,'+'+stdStr+' pro MA',ue.lohn,ue.fahrt,ue.kosten,ue.gewinn,true);
+    h+='</div>';
+    var mG=ue.gewinn-gwO;
+    h+='<div style="background:linear-gradient(135deg,var(--gd),#2d6e4e);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">'
+      +'<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Vorteil Ueberstunden</div>'
+      +'<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">1 Tag weniger &middot; Fahrt gespart: '+fmt(ue.fahrtErsparnis)+'</div></div>'
+      +'<div style="text-align:right"><div style="font-size:11px;color:rgba(255,255,255,.7)">Mehr Gewinn</div>'
+      +'<div style="font-size:22px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff">+'+fmt(mG)+'</div></div>'
+      +'</div>';
+  }
+  h+=copyBox('bau');
+  h+='<div class="sec">Speichern &amp; Senden</div>';
+  h+='<div class="card"><div style="display:flex;gap:8px">'
+    +'<button onclick="saveKalk(\'bau\',calcB().preisInkl*liveAdj.bau)" style="flex:1;height:46px;background:var(--navy);border:none;border-radius:12px;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer">&#x1F4BE; Speichern</button>'
+    +'<button onclick="sendKalkMail(\'bau\')" style="flex:1;height:46px;background:var(--gd);border:none;border-radius:12px;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer">&#9993; Per Mail</button>'
+    +'</div></div>';
+  h+='<div class="nav"><button class="btn-back" onclick="bauStep=1;render()">&#8592;</button><button class="btn-next" onclick="resetB(false)">+ Neue</button></div></div>';
+  return h;
+}
+
+// ============================================================
+// FENSTERREINIGUNG
+// ============================================================
+// Fenstertypen: [id, label, Zeitfaktor relativ zu Standard]
+// Fein Standard = 1.0 Basis (40 m²/h Quick-Basis → Fein Speed 0.67)
+// Zeitfaktor: höher = langsamer
+var FENTYPEN=[
+  ['standard',  'Standard (einfach)',      1.0],
+  ['doppel',    'Doppelfenster',           1.4],
+  ['dach',      'Dachfenster',             1.6],
+  ['sprossen',  'Sprossenfenster',         2.0],
+  ['ueberdach', 'Glasueberdachung',        1.5],
+  ['keller',    'Kellerfenster/-schacht',  1.8],
+  ['raffstore', 'Raffstore / Jalousien',   1.3],
+  ['hallentor', 'Hallentore',              1.2]
+];
+
+function getFenTyp(id){
+  for(var i=0;i<FENTYPEN.length;i++)if(FENTYPEN[i][0]===id)return FENTYPEN[i];
+  return FENTYPEN[0];
+}
+
+function calcFenGruppe(g, speedBase){
+  // m2 einseitig
+  var m2ein=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
+  var m2beid=m2ein*2;
+  var typFaktor=getFenTyp(g.typ||'standard')[2];
+  // effektive m2/h fuer diese Gruppe
+  var effM2h=speedBase/typFaktor;
+  var std=m2beid/effM2h;
+  return {m2ein:m2ein,m2beid:m2beid,typFaktor:typFaktor,effM2h:effM2h,std:std};
+}
+
+function calcF(){
+  // Quick-Basis: C.fenM2h (z.B. 40 m2/h)
+  // Fein: 40% langsamer als Quick (Faktor 0.67 vom Quick)
+  var speedQuick=C.fenM2h;
+  var speedFein=C.fenM2h*0.67;
+
+  var totalM2beid=0, totalStdFein=0, totalStdQuick=0;
+  F.gruppen.forEach(function(g){
+    var gf=calcFenGruppe(g,speedFein);
+    var gq=calcFenGruppe(g,speedQuick);
+    totalM2beid+=gf.m2beid;
+    totalStdFein+=gf.std;
+    totalStdQuick+=gq.std;
+  });
+
+  // FEIN Kalkulation
+  var tageExaktFein=totalStdFein/(C.stdTag*F.ma);
+  var tageFein=Math.ceil(tageExaktFein);
+  var stdVollFein=tageFein*C.stdTag*F.ma;
+  var lohnFein=stdVollFein*C.bauR;
+  var fahrtFein=tageFein*calcFahrt(F.fahrtMin,F.ma,C.bauR);
+  var pf=totalM2beid<=300?2.50:totalM2beid<=1000?2.25:2.00;
+  var preisFein=pf*totalM2beid;
+  var kostenFein=lohnFein+fahrtFein+preisFein*(C.mat/100);
+  var gewinnFein=preisFein-kostenFein;
+  var margeFein=(gewinnFein/preisFein*100).toFixed(1);
+
+  // QUICK Kalkulation
+  var tageExaktQuick=totalStdQuick/(C.stdTag*F.ma);
+  var tageQuick=Math.ceil(tageExaktQuick);
+  var stdVollQuick=tageQuick*C.stdTag*F.ma;
+  var lohnQuick=stdVollQuick*C.bauR;
+  var fahrtQuick=tageQuick*calcFahrt(F.fahrtMin,F.ma,C.bauR);
+  var pq=totalM2beid<=300?1.80:totalM2beid<=1000?1.65:1.45;
+  var preisQuick=pq*totalM2beid;
+  var kostenQuick=lohnQuick+fahrtQuick+preisQuick*(C.mat/100);
+  var gewinnQuick=preisQuick-kostenQuick;
+  var margeQuick=(gewinnQuick/preisQuick*100).toFixed(1);
+
+  // UE Variante fuer Fein
+  var ueVariante=null;
+  if(tageFein>1){
+    var tm1=tageFein-1;
+    var ueStdProMA=(tageExaktFein-tm1)*C.stdTag;
+    if(ueStdProMA<=C.maxUeStd&&ueStdProMA>0){
+      var ueL=(tm1*C.stdTag*F.ma+ueStdProMA*F.ma)*C.bauR;
+      var ueF2=tm1*calcFahrt(F.fahrtMin,F.ma,C.bauR);
+      var ueK=ueL+ueF2+preisFein*(C.mat/100);
+      var ueG=preisFein-ueK;
+      ueVariante={tage:tm1,ueStdProMA:ueStdProMA,lohn:ueL,fahrt:ueF2,kosten:ueK,
+        gewinn:ueG,marge:(ueG/preisFein*100).toFixed(1),fahrtErsparnis:fahrtFein-ueF2};
+    }
+  }
+
+  return {
+    totalM2beid:totalM2beid,
+    fein:{tage:tageFein,tageExakt:tageExaktFein,stdVoll:stdVollFein,lohn:lohnFein,
+      fahrt:fahrtFein,preis:preisFein,kosten:kostenFein,gewinn:gewinnFein,marge:margeFein,ppm2:pf},
+    quick:{tage:tageQuick,tageExakt:tageExaktQuick,stdVoll:stdVollQuick,lohn:lohnQuick,
+      fahrt:fahrtQuick,preis:preisQuick,kosten:kostenQuick,gewinn:gewinnQuick,marge:margeQuick,ppm2:pq},
+    ueVariante:ueVariante
+  };
+}
+
+function renderFen(){if(fenStep===0)return fS0();if(fenStep===1)return fS1();return fS2();}
+
+function fS0(){
+  var h='<div class="pg"><div class="sec">Kundeninformationen</div><div class="card">';
+  h+=inp('Firma / Kunde','text','f_fn',F.fn,'Musterfirma GmbH');
+  h+=inp('Adresse','text','f_fa',F.fa,'Strasse, PLZ Ort');
+  h+=inp('Telefon','tel','f_ftel',F.ftel,'+49 ...');
+  h+=inp('E-Mail','email','f_fe',F.fe,'kunde@firma.de');
+  h+=inp('Ansprechpartner','text','f_fap',F.fap,'Vor- und Nachname');
+  h+='</div>';
+  h+='<div class="sec">Einsatzplanung</div><div class="card">';
+  h+='<div class="fld"><label class="flbl">Anzahl Mitarbeiter</label>'+maStepper('F',F.ma)+'</div>';
+  h+=inp('Rueckfahrt (Minuten)','number','f_fmin',F.fahrtMin,'30','Min');
+  h+='</div><div class="nav"><button class="btn-next" style="flex:1" onclick="fN(0)">Weiter</button></div></div>';
+  return h;
+}
+
+function fS1(){
+  var h='<div class="pg">';
+  h+='<div class="sec">Glasflaechen aufmessen</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-bottom:10px;padding:0 2px">Typ waehlen &rarr; Masse eingeben &rarr; Anzahl</div>';
+
+  F.gruppen.forEach(function(g,i){
+    var m2=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
+    h+='<div class="card" style="margin-bottom:8px">';
+    // Typ
+    h+='<div class="fld" style="margin-bottom:10px"><label class="flbl">Fenstertyp</label>';
+    h+='<select class="inp" id="ftyp'+i+'" style="font-size:13px" onchange="updF('+i+',\'typ\',this.value)">';
+    FENTYPEN.forEach(function(t){
+      h+='<option value="'+t[0]+'"'+(g.typ===t[0]?' selected':'')+'>'+t[1]+'</option>';
+    });
+    h+='</select></div>';
+    // Masse: 2 Spalten (Breite+Hoehe) dann Anzahl darunter
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
+    h+='<div><label class="flbl">Breite (m)</label><input class="inp" type="number" id="fb'+i+'" value="'+g.b+'" placeholder="1.20" inputmode="decimal" onchange="updF('+i+',\'b\',this.value)"></div>';
+    h+='<div><label class="flbl">Hoehe (m)</label><input class="inp" type="number" id="fh'+i+'" value="'+g.h+'" placeholder="1.40" inputmode="decimal" onchange="updF('+i+',\'h\',this.value)"></div>';
+    h+='</div>';
+    // Anzahl + Summe in einer Zeile
+    h+='<div style="display:flex;align-items:center;gap:10px">';
+    h+='<div style="flex:1"><label class="flbl">Anzahl</label><input class="inp" type="number" id="fa'+i+'" value="'+g.anz+'" placeholder="1" inputmode="numeric" onchange="updF('+i+',\'anz\',this.value)"></div>';
+    h+='<div style="flex:1;padding-top:18px">';
+    h+='<div style="background:var(--gp);border-radius:10px;padding:10px;text-align:center">';
+    h+='<div style="font-size:10px;font-weight:600;color:var(--gd);letter-spacing:.8px;text-transform:uppercase">beidseitig</div>';
+    h+='<div style="font-size:16px;font-weight:700;font-family:\'DM Mono\',monospace;color:var(--navy)" id="ft'+i+'">'+(m2>0?(m2*2).toFixed(2):'–')+'</div>';
+    h+='<div style="font-size:11px;color:var(--g600)">m&#178;</div>';
+    h+='</div></div>';
+    h+='</div>';
+    // Delete button
+    if(F.gruppen.length>1){
+      h+='<div style="text-align:right;margin-top:8px">';
+      h+='<button class="del-btn" onclick="delFRow('+i+')" style="width:auto;padding:0 12px">&#x2715; Gruppe entfernen</button>';
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+
+  var totM2=F.gruppen.reduce(function(s,g){return s+(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);},0);
+  h+='<button class="add-row" onclick="addFRow()">+ Weitere Fenstergruppe hinzufuegen</button>';
+  h+='<div style="background:var(--navy);border-radius:14px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center">';
+  h+='<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl)">Gesamt beidseitig</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-top:2px">'+F.gruppen.length+' Gruppe(n)</div></div>';
+  h+='<div style="font-size:24px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="fenTot">'+(totM2*2).toFixed(2)+' m&#178;</div>';
+  h+='</div>';
+  h+='<div class="nav"><button class="btn-back" onclick="fenStep=0;render()">&#8592;</button><button class="btn-next" onclick="fN(1)">Berechnen</button></div></div>';
+  return h;
+}
+
+function updF(i,k,v){
+  F.gruppen[i][k]=v;
+  var g=F.gruppen[i];
+  var t=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
+  var e=document.getElementById('ft'+i);if(e)e.textContent=t>0?(t*2).toFixed(2):'–';
+  var tot=F.gruppen.reduce(function(s,g){return s+(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);},0);
+  var et=document.getElementById('fenTot');if(et)et.textContent=(tot*2).toFixed(2)+' m\u00b2';
+}
+function addFRow(){F.gruppen.push({typ:'standard',b:'',h:'',anz:'1'});render();}
+function delFRow(i){if(F.gruppen.length>1){F.gruppen.splice(i,1);render();}}
+function fN(s){
+  if(s===0){F.fn=gv('f_fn');F.fa=gv('f_fa');F.ftel=gv('f_ftel');F.fe=gv('f_fe');F.fap=gv('f_fap');F.fahrtMin=parseFloat(gv('f_fmin'))||60;}
+  if(s===1){F.gruppen.forEach(function(g,i){
+    g.typ=gv('ftyp'+i)||'standard';
+    g.b=gv('fb'+i);g.h=gv('fh'+i);g.anz=gv('fa'+i)||'1';
+  });}
+  fenStep=s+1;liveAdj.fen=1.0;render();
+}
+
+function fS2(){
+  var c=calcF();
+  if(c.totalM2beid<=0)return '<div class="pg"><div class="card" style="text-align:center;padding:30px">'
+    +'<div style="font-size:28px;margin-bottom:8px">&#9888;</div>'
+    +'<div style="font-size:13px;color:var(--g600)">Bitte Masse eingeben</div></div>'
+    +'<div class="nav"><button class="btn-back" onclick="fenStep=1;render()">&#8592;</button></div></div>';
+
+  var cf=c.fein, cq=c.quick;
+  var h='<div class="pg">';
+
+  // Objekt-Header
+  h+='<div class="rcard"><div class="rhead">OBJEKT</div>'
+    +'<div style="font-size:14px;font-weight:700;margin-bottom:3px">'+(F.fn||'–')+'</div>'
+    +'<div style="font-size:11px;color:var(--g400);margin-bottom:8px">'+(F.fa||'')+'</div>'
+    +'<div style="display:flex;flex-wrap:wrap">'+bdg(c.totalM2beid.toFixed(1)+' m&#178; beids.')+bdg(F.ma+' MA')+bdg(F.fahrtMin+' min')+'</div></div>';
+
+  // Aufmass Aufschluss
+  h+='<div class="sec">Aufmass nach Fenstertyp</div><div class="card">';
+  F.gruppen.forEach(function(g,i){
+    var gf=calcFenGruppe(g,C.fenM2h*0.67);
+    if(gf.m2beid>0){
+      var typLabel=getFenTyp(g.typ||'standard')[1];
+      h+=bkrow(typLabel+' ('+g.b+'m x '+g.h+'m x '+g.anz+')',gf.m2beid.toFixed(1)+' m&#178;');
+    }
+  });
+  h+='<hr class="bkd" style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700">'
+    +'<span>Gesamt beidseitig</span><span style="font-family:\'DM Mono\',monospace;color:var(--gd)">'+c.totalM2beid.toFixed(1)+' m&#178;</span></div>';
+  h+='</div>';
+
+  // MEINE KOSTEN
+  h+='<div class="sec">Meine Kosten</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
+  // Fein Kosten
+  h+='<div style="background:var(--navy);border-radius:14px;padding:13px;color:#fff">';
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl);margin-bottom:8px">FEIN</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-bottom:4px">'+cf.tage+' Tag(e) &middot; '+fmtTage(cf.tageExakt,C.stdTag)+'</div>';
+  h+='<div style="font-size:11px;color:var(--g400)">Lohn: '+fmt(cf.lohn)+'</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-bottom:8px">Fahrt: '+fmt(cf.fahrt)+'</div>';
+  h+='<div style="font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:.8px">Gesamtkosten</div>';
+  h+='<div style="font-size:18px;font-weight:700;font-family:\'DM Mono\',monospace;color:#ff8080">'+fmt(cf.kosten)+'</div>';
+  h+='</div>';
+  // Quick Kosten
+  h+='<div style="background:var(--navy);border-radius:14px;padding:13px;color:#fff">';
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl);margin-bottom:8px">QUICK</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-bottom:4px">'+cq.tage+' Tag(e) &middot; '+fmtTage(cq.tageExakt,C.stdTag)+'</div>';
+  h+='<div style="font-size:11px;color:var(--g400)">Lohn: '+fmt(cq.lohn)+'</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-bottom:8px">Fahrt: '+fmt(cq.fahrt)+'</div>';
+  h+='<div style="font-size:10px;color:var(--g400);text-transform:uppercase;letter-spacing:.8px">Gesamtkosten</div>';
+  h+='<div style="font-size:18px;font-weight:700;font-family:\'DM Mono\',monospace;color:#ff8080">'+fmt(cq.kosten)+'</div>';
+  h+='</div>';
+  h+='</div>';
+
+  // ANGEBOTSPREIS VERGLEICH – zwei Kästen
+  h+='<div class="sec">Angebotspreis Vergleich</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
+
+  // FEIN Kasten
+  var livePF=cf.preis*liveAdj.fen;
+  var liveKF=cf.lohn+cf.fahrt+livePF*(C.mat/100);
+  var liveGF=livePF-liveKF;
+  var liveMF=(liveGF/livePF*100).toFixed(1);
+  h+='<div style="background:linear-gradient(135deg,#4a9270,#2d6e4e);border-radius:14px;padding:14px;text-align:center">';
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:6px">FEIN</div>';
+  h+='<div style="font-size:28px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="liveP_fen">'+fmt(livePF)+'</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:3px">'+cf.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
+  h+='<div style="background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff;display:inline-block;margin-top:8px">Marge: <span id="marg_fen">'+liveMF+'</span>%</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px">Gewinn: <span id="gew_fen">'+fmt(liveGF)+'</span></div>';
+  h+='</div>';
+
+  // QUICK Kasten
+  var preisQuickLive=cf.preis*0.72; // 28% guenstiger als Fein
+  var liveKQ=cq.lohn+cq.fahrt+preisQuickLive*(C.mat/100);
+  var liveGQ=preisQuickLive-liveKQ;
+  var liveMQ=(liveGQ/preisQuickLive*100).toFixed(1);
+  h+='<div style="background:linear-gradient(135deg,#243044,#1a2332);border-radius:14px;padding:14px;text-align:center;border:1.5px solid var(--n2)">';
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl);margin-bottom:6px">QUICK <span style="font-size:9px;color:var(--g400)">(-28%)</span></div>';
+  h+='<div style="font-size:28px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff">'+fmt(preisQuickLive)+'</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-top:3px">'+cq.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
+  h+='<div style="background:rgba(139,196,168,.15);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--gl);display:inline-block;margin-top:8px">Marge: '+liveMQ+'%</div>';
+  h+='<div style="font-size:11px;color:var(--g400);margin-top:4px">Gewinn: '+fmt(liveGQ)+'</div>';
+  h+='</div>';
+  h+='</div>';
+
+  // SLIDER nur fuer Fein
+  h+='<div class="pbox" style="margin-bottom:10px">';
+  h+='<div class="pbox-l">Fein-Preis Verhandlungsregler</div>';
+  h+='<div class="slider-wrap" style="margin-top:0;padding-top:10px;border-top:none">';
+  h+='<div class="slider-row"><span class="slider-min">-30%</span>'
+    +'<input type="range" class="slider" id="sl_fen" min="70" max="130" value="'+(liveAdj.fen*100)+'" oninput="adjP(\'fen\',this.value)">'
+    +'<span class="slider-max">+30%</span></div>';
+  h+='<div class="slider-info">';
+  h+='<div class="sinfo-item">Anpassung<span class="sinfo-val" id="adj_fen">'+((liveAdj.fen-1)*100>=0?'+':'')+((liveAdj.fen-1)*100).toFixed(0)+'%</span></div>';
+  h+='<div class="sinfo-item">Fein Marge<span class="sinfo-val" id="marg_fen2">'+liveMF+'%</span></div>';
+  h+='<div class="sinfo-item">Fein Gewinn<span class="sinfo-val" id="gew_fen2">'+fmt(liveGF)+'</span></div>';
+  h+='</div></div></div>';
+
+  // UE Variante
+  if(c.ueVariante){
+    var ue=c.ueVariante;
+    var stdStr=ue.ueStdProMA>=1?(Math.floor(ue.ueStdProMA)+'h '+(Math.round((ue.ueStdProMA%1)*60))+'min'):(Math.round(ue.ueStdProMA*60)+' Min');
+    var gwO=cf.preis-cf.kosten;
+    h+='<div class="sec">Vergleich: Normal vs. Ueberstunden</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
+    h+=ueCol('NORMAL',cf.tage,fmtTage(cf.tageExakt,C.stdTag),cf.lohn,cf.fahrt,cf.kosten,gwO,false);
+    h+=ueCol('MIT UE',ue.tage,'+'+stdStr+' pro MA',ue.lohn,ue.fahrt,ue.kosten,ue.gewinn,true);
+    h+='</div>';
+    var mG=ue.gewinn-gwO;
+    h+='<div style="background:linear-gradient(135deg,var(--gd),#2d6e4e);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">'
+      +'<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Vorteil Ueberstunden</div>'
+      +'<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">1 Tag weniger &middot; Fahrt gespart: '+fmt(ue.fahrtErsparnis)+'</div></div>'
+      +'<div style="text-align:right"><div style="font-size:11px;color:rgba(255,255,255,.7)">Mehr Gewinn</div>'
+      +'<div style="font-size:22px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff">+'+fmt(mG)+'</div></div>'
+      +'</div>';
+  }
+
+  h+=copyBox('fen');
+  h+='<div class="sec">Speichern &amp; Senden</div>';
+  h+='<div class="card"><div style="display:flex;gap:8px">'
+    +'<button onclick="saveKalk(\'fen\',calcF().fein.preis*liveAdj.fen)" style="flex:1;height:46px;background:var(--navy);border:none;border-radius:12px;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer">&#x1F4BE; Speichern</button>'
+    +'<button onclick="sendKalkMail(\'fen\')" style="flex:1;height:46px;background:var(--gd);border:none;border-radius:12px;font-family:\'DM Sans\',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer">&#9993; Per Mail</button>'
+    +'</div></div>';
+  h+='<div class="nav"><button class="btn-back" onclick="fenStep=1;render()">&#8592;</button><button class="btn-next" onclick="resetF(false)">+ Neue</button></div></div>';
+  return h;
+}
+
+// UE comparison columns helper
+function ueCol(title,tage,sub,lohn,fahrt,kosten,gewinn,highlight){
+  var bg=highlight?'var(--gd)':'var(--navy)';
+  var dim=highlight?'rgba(255,255,255,.7)':'var(--g400)';
+  var white='#fff';
+  return '<div style="background:'+bg+';border-radius:14px;padding:14px;color:#fff">'
+    +'<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:'+dim+';margin-bottom:8px">'+title+'</div>'
+    +'<div style="font-size:22px;font-weight:700;font-family:\'DM Mono\',monospace;margin-bottom:2px">'+tage+(tage===1?' Tag':' Tage')+'</div>'
+    +'<div style="font-size:11px;color:'+dim+';margin-bottom:10px">'+sub+'</div>'
+    +'<div style="border-top:1px solid rgba(255,255,255,.15);padding-top:8px">'
+    +'<div style="font-size:10px;color:'+dim+';margin-bottom:2px">Lohn</div><div style="font-size:13px;font-family:\'DM Mono\',monospace">'+fmt(lohn)+'</div>'
+    +'<div style="font-size:10px;color:'+dim+';margin-top:6px;margin-bottom:2px">Fahrt</div><div style="font-size:13px;font-family:\'DM Mono\',monospace">'+fmt(fahrt)+'</div>'
+    +'<div style="font-size:10px;color:'+dim+';margin-top:6px;margin-bottom:2px">Gesamtkosten</div><div style="font-size:15px;font-weight:700;font-family:\'DM Mono\',monospace">'+fmt(kosten)+'</div>'
+    +'<div style="font-size:10px;color:'+dim+';margin-top:6px;margin-bottom:2px">Gewinn</div><div style="font-size:15px;font-weight:700;font-family:\'DM Mono\',monospace">'+fmt(gewinn)+'</div>'
+    +'</div></div>';
+}
+
+// ============================================================
+// PRICE SLIDER
+// ============================================================
+function adjP(type,val){
+  var pct=parseFloat(val)/100;
+  liveAdj[type]=pct;
+  var liveP,liveK,liveG,liveM,mc;
+  if(type==='unt'){var c=calcU();liveP=29*c.stdMo*pct;liveK=c.lohnMo+liveP*(C.mat/100);liveG=liveP-liveK;}
+  else if(type==='bau'){var c=calcB();liveP=c.preisInkl*pct;liveK=c.lohn+c.fahrt+liveP*(C.mat/100);liveG=liveP-liveK;}
+  else{var c=calcF();liveP=c.fein.preis*pct;liveK=c.fein.lohn+c.fein.fahrt+liveP*(C.mat/100);liveG=liveP-liveK;}
+  liveM=(liveG/liveP*100).toFixed(1);
+  mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
+  var sfx='_'+type;
+  var ep=document.getElementById('liveP'+sfx);if(ep)ep.textContent=fmt(liveP);
+  var ea=document.getElementById('adj'+sfx);if(ea)ea.textContent=(pct>=1?'+':'')+((pct-1)*100).toFixed(0)+'%';
+  var em=document.getElementById('marg'+sfx);if(em){em.textContent=liveM+'%';em.className='sinfo-val '+mc;}
+  var eg=document.getElementById('gew'+sfx);if(eg){eg.textContent=fmt(liveG);eg.className='sinfo-val '+mc;}
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetU(silent){U.fn='';U.fa='';U.fe='';U.ftel='';U.fap='';U.turnus='woechentlich';U.tage=[];U.uhr='';U.of='';U.ma=1;U.raeume.forEach(function(r){r.m2=0;});U.hWC=0;U.dWC=0;U.hD=0;U.dD=0;U.pis=0;U.bWC=0;U.muell=true;U.nach=true;U.ofl=true;U.tg=true;U.spi=true;U.fenI=false;U.kuehl=false;U.notes='';untStep=0;liveAdj.unt=1.0;SCR='unt';if(!silent)render();}
+function resetB(silent){B.fn='';B.fa='';B.fe='';B.ftel='';B.fap='';B.etagen=[{name:'EG',m2:0}];B.art='fein';B.schmutz='mittel';B.extraOn=false;B.klebe=false;B.farbe=false;B.gips=false;B.folie=false;B.fliesen=false;B.sonder=false;B.notes='';B.fahrtMin=60;B.ma=2;bauStep=0;liveAdj.bau=1.0;SCR='bau';if(!silent)render();}
+function resetF(silent){F.fn='';F.fa='';F.fe='';F.ftel='';F.fap='';F.art='fein';F.gruppen=[{typ:'standard',b:'',h:'',anz:'1'}];F.fahrtMin=60;F.ma=1;fenStep=0;liveAdj.fen=1.0;SCR='fen';if(!silent)render();}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function openSettings(){
+  document.getElementById('s1').value=C.untR;document.getElementById('s2').value=C.bauR;
+  document.getElementById('s4').value=C.mat;document.getElementById('s5').value=C.bauM2;
+  document.getElementById('s6').value=C.fenM2h;document.getElementById('s7').value=C.stdTag;
+  document.getElementById('s8').value=C.maxUeStd;
+  document.getElementById('sf_n').value=C.firmName;document.getElementById('sf_str').value=C.firmStr;
+  document.getElementById('sf_plz').value=C.firmPlz;document.getElementById('sf_tel').value=C.firmTel;
+  document.getElementById('sf_email').value=C.firmEmail;
+  document.getElementById('ov').className='ov show';
+}
+function saveSettings(){
+  C.untR=parseFloat(document.getElementById('s1').value)||C.untR;
+  C.bauR=parseFloat(document.getElementById('s2').value)||C.bauR;
+  C.mat=parseFloat(document.getElementById('s4').value)||C.mat;
+  C.bauM2=parseFloat(document.getElementById('s5').value)||C.bauM2;
+  C.fenM2h=parseFloat(document.getElementById('s6').value)||C.fenM2h;
+  C.stdTag=parseFloat(document.getElementById('s7').value)||C.stdTag;
+  C.maxUeStd=parseFloat(document.getElementById('s8').value)||C.maxUeStd;
+  C.firmName=gv('sf_n')||C.firmName;C.firmStr=gv('sf_str')||C.firmStr;
+  C.firmPlz=gv('sf_plz')||C.firmPlz;C.firmTel=gv('sf_tel')||C.firmTel;
+  C.firmEmail=gv('sf_email')||C.firmEmail;
+  try{localStorage.setItem('cb_cfg',JSON.stringify(C));}catch(e){}
+  document.getElementById('ov').className='ov';
+  showToast('Gespeichert!');
+}
+function resetDef(){
+  if(!confirm('Standardwerte wiederherstellen?'))return;
+  C.untR=20.25;C.bauR=22.95;C.mat=3;C.bauM2=140;C.fenM2h=40;C.stdTag=7;C.maxUeStd=2;
+  try{localStorage.removeItem('cb_cfg');}catch(e){}
+  document.getElementById('ov').className='ov';
+  showToast('Standardwerte wiederhergestellt!');
+}
+function closeOv(e){if(e.target===document.getElementById('ov'))document.getElementById('ov').className='ov';}
+
+// ============================================================
+// INIT
+// ============================================================
+try{var sc=localStorage.getItem('cb_cfg');if(sc)Object.assign(C,JSON.parse(sc));}catch(e){}
+try{var sv=localStorage.getItem('cb_saved');if(sv)SAVED=JSON.parse(sv);}catch(e){}
+render();
+</script>
+</body>
+</html>
