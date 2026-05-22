@@ -63,11 +63,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--g100);color:var(--navy);m
 .fld{margin-bottom:12px}
 .fld:last-child{margin-bottom:0}
 .flbl{font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block}
-.frow{display:flex;align-items:center;gap:8px}
-.inp{flex:1;height:44px;border:1.5px solid var(--g200);border-radius:10px;padding:0 12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:var(--navy);background:var(--g100);outline:none;-webkit-appearance:none}
+.frow{display:flex;align-items:center;gap:8px;min-width:0}
+.inp{flex:1;min-width:0;height:44px;border:1.5px solid var(--g200);border-radius:10px;padding:0 12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:var(--navy);background:var(--g100);outline:none;-webkit-appearance:none;width:100%;max-width:100%}
 .inp:focus{border-color:var(--gd);background:#fff}
 textarea.inp{height:70px;padding:10px 12px;resize:none;font-size:13px;line-height:1.5}
-.unit{font-size:12px;color:var(--g400);font-weight:500;white-space:nowrap;min-width:30px}
+.unit{font-size:12px;color:var(--g400);font-weight:500;white-space:nowrap;min-width:24px;flex-shrink:0}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chip{padding:7px 13px;border:1.5px solid var(--g200);border-radius:18px;background:#fff;font-size:12px;font-weight:600;color:var(--g400);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
 .chip.on{border-color:var(--gd);background:var(--gp);color:var(--navy)}
@@ -281,7 +281,7 @@ var B={fn:'',fa:'',fe:'',ftel:'',fap:'',fahrtMin:60,ma:2,
   etagen:[{name:'EG',m2:0}],art:'fein',schmutz:'mittel',extraOn:false,
   klebe:false,farbe:false,gips:false,folie:false,fliesen:false,sonder:false,notes:''};
 var F={fn:'',fa:'',fe:'',ftel:'',fap:'',fahrtMin:60,ma:1,
-  art:'fein',gruppen:[{typ:'standard',b:'',h:'',anz:'1'}]};
+  art:'fein',gruppen:[{typ:'standard',b:'',h:'',anz:'1',seite:'beidseitig'}]};
 
 var ARTEN=[['buero','Buero'],['arzt','Arztpraxis'],['geschaeft','Geschaeft'],['schule','Schule'],
   ['kiga','Kindergarten'],['produktion','Produktion'],['hotel','Hotel'],
@@ -524,8 +524,10 @@ function buildCopyText(type){
     lines.push('');
     F.gruppen.forEach(function(g,i){
       var t=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
+      var sf=(g.seite==='einfach')?1:2;
       var typLabel=getFenTyp(g.typ||'standard')[1];
-      if(t>0)lines.push(typLabel+' '+g.b+'m x '+g.h+'m x '+g.anz+' Stk. = '+(t*2).toFixed(1)+' m2 beids.');
+      var seiteLabel=(g.seite==='einfach')?'einfach':'beidseitig';
+      if(t>0)lines.push(typLabel+' '+g.b+'m x '+g.h+'m x '+g.anz+' Stk. ('+seiteLabel+') = '+(t*sf).toFixed(2)+' m2');
     });
     lines.push('');
     lines.push('ANGEBOTSPREIS FEIN: '+fmt(finalP)+' (netto)');
@@ -1005,14 +1007,11 @@ function bS1(){
   h+='<div style="font-size:11px;color:var(--g400);margin-bottom:10px;padding:0 2px">Jede Etage separat erfassen – z.B. aus dem Grundriss</div>';
   B.etagen.forEach(function(e,i){
     h+='<div class="card" style="margin-bottom:8px">';
-    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
-    h+='<div style="flex:1"><label class="flbl" style="margin:0">Bezeichnung</label></div>';
-    if(B.etagen.length>1)h+='<button class="del-btn" onclick="delEtage('+i+')">&#x2715;</button>';
+    h+='<div style="display:grid;grid-template-columns:40% 1fr;gap:8px">';
+    h+='<div><label class="flbl">Bezeichnung</label><input class="inp" type="text" id="en'+i+'" value="'+e.name+'" placeholder="EG, OG1..." style="font-size:14px"></div>';
+    h+='<div><label class="flbl">Flaeche</label><div class="frow"><input class="inp" type="number" id="em'+i+'" value="'+(e.m2||'')+'" placeholder="0" inputmode="decimal" style="font-size:14px" onchange="updEtage('+i+',this.value)"><span class="unit" style="flex-shrink:0">m&#178;</span></div></div>';
     h+='</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
-    h+='<div><input class="inp" type="text" id="en'+i+'" value="'+e.name+'" placeholder="z.B. EG, OG1..." style="font-size:14px"></div>';
-    h+='<div><div class="frow"><input class="inp" type="number" id="em'+i+'" value="'+(e.m2||'')+'" placeholder="0" inputmode="decimal" style="font-size:14px" onchange="updEtage('+i+',this.value)"><span class="unit">m&#178;</span></div></div>';
-    h+='</div>';
+    if(B.etagen.length>1){h+='<div style="text-align:right;margin-top:6px"><button class="del-btn" style="width:auto;padding:0 12px" onclick="delEtage('+i+')">&#x2715; Entfernen</button></div>';}
     h+='</div>';
   });
   h+='<button class="add-row" onclick="addEtage()">+ Weitere Etage hinzufuegen</button>';
@@ -1178,14 +1177,14 @@ function getFenTyp(id){
 }
 
 function calcFenGruppe(g, speedBase){
-  // m2 einseitig
   var m2ein=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
-  var m2beid=m2ein*2;
+  // einfach = nur eine Seite (z.B. nur aussen), beidseitig = 2x
+  var seitenFaktor=(g.seite==='einfach')?1:2;
+  var m2ges=m2ein*seitenFaktor;
   var typFaktor=getFenTyp(g.typ||'standard')[2];
-  // effektive m2/h fuer diese Gruppe
   var effM2h=speedBase/typFaktor;
-  var std=m2beid/effM2h;
-  return {m2ein:m2ein,m2beid:m2beid,typFaktor:typFaktor,effM2h:effM2h,std:std};
+  var std=m2ges/effM2h;
+  return {m2ein:m2ein,m2beid:m2ges,typFaktor:typFaktor,effM2h:effM2h,std:std,seite:g.seite||'beidseitig'};
 }
 
 function calcF(){
@@ -1284,20 +1283,26 @@ function fS1(){
       h+='<option value="'+t[0]+'"'+(g.typ===t[0]?' selected':'')+'>'+t[1]+'</option>';
     });
     h+='</select></div>';
+    // Seiten-Toggle
+    var seite=g.seite||'beidseitig';
+    h+='<div class="fld" style="margin-bottom:10px"><label class="flbl">Reinigung</label>';
+    h+='<div class="type-row">';
+    h+='<button class="topt'+(seite==='einfach'?' on':'')+'" onclick="updF('+i+',\'seite\',\'einfach\');render()">Einfach (nur aussen)</button>';
+    h+='<button class="topt'+(seite==='beidseitig'?' on':'')+'" onclick="updF('+i+',\'seite\',\'beidseitig\');render()">Beidseitig</button>';
+    h+='</div></div>';
     // Masse: 2 Spalten (Breite+Hoehe) dann Anzahl darunter
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
-    h+='<div><label class="flbl">Breite (m)</label><input class="inp" type="number" id="fb'+i+'" value="'+g.b+'" placeholder="1.20" inputmode="decimal" onchange="updF('+i+',\'b\',this.value)"></div>';
-    h+='<div><label class="flbl">Hoehe (m)</label><input class="inp" type="number" id="fh'+i+'" value="'+g.h+'" placeholder="1.40" inputmode="decimal" onchange="updF('+i+',\'h\',this.value)"></div>';
+    h+='<div><label class="flbl">Breite&nbsp;(m)</label><input class="inp" type="number" id="fb'+i+'" value="'+g.b+'" placeholder="1.20" inputmode="decimal" onchange="updF('+i+',\'b\',this.value)" style="font-size:15px"></div>';
+    h+='<div><label class="flbl">H&ouml;he&nbsp;(m)</label><input class="inp" type="number" id="fh'+i+'" value="'+g.h+'" placeholder="1.40" inputmode="decimal" onchange="updF('+i+',\'h\',this.value)" style="font-size:15px"></div>';
     h+='</div>';
-    // Anzahl + Summe in einer Zeile
-    h+='<div style="display:flex;align-items:center;gap:10px">';
-    h+='<div style="flex:1"><label class="flbl">Anzahl</label><input class="inp" type="number" id="fa'+i+'" value="'+g.anz+'" placeholder="1" inputmode="numeric" onchange="updF('+i+',\'anz\',this.value)"></div>';
-    h+='<div style="flex:1;padding-top:18px">';
-    h+='<div style="background:var(--gp);border-radius:10px;padding:10px;text-align:center">';
-    h+='<div style="font-size:10px;font-weight:600;color:var(--gd);letter-spacing:.8px;text-transform:uppercase">beidseitig</div>';
-    h+='<div style="font-size:16px;font-weight:700;font-family:\'DM Mono\',monospace;color:var(--navy)" id="ft'+i+'">'+(m2>0?(m2*2).toFixed(2):'–')+'</div>';
-    h+='<div style="font-size:11px;color:var(--g600)">m&#178;</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end">';
+    h+='<div><label class="flbl">Anzahl</label><input class="inp" type="number" id="fa'+i+'" value="'+g.anz+'" placeholder="1" inputmode="numeric" onchange="updF('+i+',\'anz\',this.value)" style="font-size:15px"></div>';
+    h+='<div><label class="flbl">Flaeche</label>';
+    h+='<div style="background:var(--gp);border-radius:10px;padding:10px;text-align:center;height:44px;display:flex;flex-direction:column;justify-content:center">';
+    h+='<div style="font-size:14px;font-weight:700;font-family:\'DM Mono\',monospace;color:var(--navy)" id="ft'+i+'">'+(m2>0?(m2*(seite==='einfach'?1:2)).toFixed(2):'–')+'</div>';
+    h+='<div style="font-size:10px;color:var(--gd);font-weight:600">'+(seite==='einfach'?'einfach':'beids.')+' m&#178;</div>';
     h+='</div></div>';
+    h+='</div>';
     h+='</div>';
     // Delete button
     if(F.gruppen.length>1){
@@ -1308,7 +1313,7 @@ function fS1(){
     h+='</div>';
   });
 
-  var totM2=F.gruppen.reduce(function(s,g){return s+(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);},0);
+  var totM2=F.gruppen.reduce(function(s,g){var m=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);var f=(g.seite==='einfach')?1:2;return s+m*f;},0);
   h+='<button class="add-row" onclick="addFRow()">+ Weitere Fenstergruppe hinzufuegen</button>';
   h+='<div style="background:var(--navy);border-radius:14px;padding:14px;margin-top:10px;display:flex;justify-content:space-between;align-items:center">';
   h+='<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl)">Gesamt beidseitig</div>';
@@ -1322,17 +1327,23 @@ function fS1(){
 function updF(i,k,v){
   F.gruppen[i][k]=v;
   var g=F.gruppen[i];
-  var t=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
-  var e=document.getElementById('ft'+i);if(e)e.textContent=t>0?(t*2).toFixed(2):'–';
-  var tot=F.gruppen.reduce(function(s,g){return s+(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);},0);
-  var et=document.getElementById('fenTot');if(et)et.textContent=(tot*2).toFixed(2)+' m\u00b2';
+  var m2ein=(parseFloat(g.b)||0)*(parseFloat(g.h)||0)*(parseInt(g.anz)||1);
+  var sf=(g.seite==='einfach')?1:2;
+  var e=document.getElementById('ft'+i);if(e)e.textContent=m2ein>0?(m2ein*sf).toFixed(2):'–';
+  var tot=F.gruppen.reduce(function(s,gr){
+    var m=(parseFloat(gr.b)||0)*(parseFloat(gr.h)||0)*(parseInt(gr.anz)||1);
+    var f=(gr.seite==='einfach')?1:2;
+    return s+m*f;
+  },0);
+  var et=document.getElementById('fenTot');if(et)et.textContent=tot.toFixed(2)+' m\u00b2';
 }
-function addFRow(){F.gruppen.push({typ:'standard',b:'',h:'',anz:'1'});render();}
+function addFRow(){F.gruppen.push({typ:'standard',b:'',h:'',anz:'1',seite:'beidseitig'});render();}
 function delFRow(i){if(F.gruppen.length>1){F.gruppen.splice(i,1);render();}}
 function fN(s){
   if(s===0){F.fn=gv('f_fn');F.fa=gv('f_fa');F.ftel=gv('f_ftel');F.fe=gv('f_fe');F.fap=gv('f_fap');F.fahrtMin=parseFloat(gv('f_fmin'))||60;}
   if(s===1){F.gruppen.forEach(function(g,i){
     g.typ=gv('ftyp'+i)||'standard';
+    g.seite=g.seite||'beidseitig';
     g.b=gv('fb'+i);g.h=gv('fh'+i);g.anz=gv('fa'+i)||'1';
   });}
   fenStep=s+1;liveAdj.fen=1.0;render();
@@ -1360,11 +1371,12 @@ function fS2(){
     var gf=calcFenGruppe(g,C.fenM2h*0.67);
     if(gf.m2beid>0){
       var typLabel=getFenTyp(g.typ||'standard')[1];
-      h+=bkrow(typLabel+' ('+g.b+'m x '+g.h+'m x '+g.anz+')',gf.m2beid.toFixed(1)+' m&#178;');
+      var seiteLabel=(g.seite==='einfach')?'einfach':'beids.';
+      h+=bkrow(typLabel+' ('+g.b+'m x '+g.h+'m x '+g.anz+') '+seiteLabel,gf.m2beid.toFixed(2)+' m&#178;');
     }
   });
   h+='<hr class="bkd" style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700">'
-    +'<span>Gesamt beidseitig</span><span style="font-family:\'DM Mono\',monospace;color:var(--gd)">'+c.totalM2beid.toFixed(1)+' m&#178;</span></div>';
+    +'<span>Gesamtflaeche</span><span style="font-family:\'DM Mono\',monospace;color:var(--gd)">'+c.totalM2beid.toFixed(2)+' m&#178;</span></div>';
   h+='</div>';
 
   // MEINE KOSTEN
@@ -1504,7 +1516,7 @@ function adjP(type,val){
 // ============================================================
 function resetU(silent){U.fn='';U.fa='';U.fe='';U.ftel='';U.fap='';U.turnus='woechentlich';U.tage=[];U.uhr='';U.of='';U.ma=1;U.raeume.forEach(function(r){r.m2=0;});U.hWC=0;U.dWC=0;U.hD=0;U.dD=0;U.pis=0;U.bWC=0;U.muell=true;U.nach=true;U.ofl=true;U.tg=true;U.spi=true;U.fenI=false;U.kuehl=false;U.notes='';untStep=0;liveAdj.unt=1.0;SCR='unt';if(!silent)render();}
 function resetB(silent){B.fn='';B.fa='';B.fe='';B.ftel='';B.fap='';B.etagen=[{name:'EG',m2:0}];B.art='fein';B.schmutz='mittel';B.extraOn=false;B.klebe=false;B.farbe=false;B.gips=false;B.folie=false;B.fliesen=false;B.sonder=false;B.notes='';B.fahrtMin=60;B.ma=2;bauStep=0;liveAdj.bau=1.0;SCR='bau';if(!silent)render();}
-function resetF(silent){F.fn='';F.fa='';F.fe='';F.ftel='';F.fap='';F.art='fein';F.gruppen=[{typ:'standard',b:'',h:'',anz:'1'}];F.fahrtMin=60;F.ma=1;fenStep=0;liveAdj.fen=1.0;SCR='fen';if(!silent)render();}
+function resetF(silent){F.fn='';F.fa='';F.fe='';F.ftel='';F.fap='';F.art='fein';F.gruppen=[{typ:'standard',b:'',h:'',anz:'1',seite:'beidseitig'}];F.fahrtMin=60;F.ma=1;fenStep=0;liveAdj.fen=1.0;SCR='fen';if(!silent)render();}
 
 // ============================================================
 // SETTINGS
