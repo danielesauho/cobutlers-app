@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>cobutlers Kalkulation</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#1a2332;--n2:#243044;--gd:#4e9470;--gl:#8bc4a8;--gp:#e8f4ee;
@@ -212,9 +213,77 @@ input[type=file]#photoInput{display:none}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:300;transition:transform .35s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
 .toast.show{transform:translateX(-50%) translateY(0)}
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--navy);padding:24px}
+.auth-logo{margin-bottom:32px;text-align:center}
+.auth-logo img{height:56px;object-fit:contain}
+.auth-card{background:#fff;border-radius:20px;padding:28px 24px;width:100%;max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.auth-title{font-size:20px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.auth-sub{font-size:13px;color:var(--g400);margin-bottom:24px}
+.auth-field{margin-bottom:14px}
+.auth-label{font-size:12px;font-weight:600;color:var(--g600);display:block;margin-bottom:5px}
+.auth-inp{width:100%;height:46px;border:1.5px solid var(--g200);border-radius:10px;padding:0 14px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--navy);background:var(--g100);outline:none;box-sizing:border-box}
+.auth-inp:focus{border-color:var(--gd);background:#fff}
+.auth-btn{width:100%;height:50px;background:var(--gd);border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;margin-top:8px}
+.auth-btn:active{opacity:.85}
+.auth-btn.sec{background:#fff;border:1.5px solid var(--g200);color:var(--navy);margin-top:10px}
+.auth-err{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:10px 14px;font-size:13px;color:#dc2626;margin-bottom:14px;display:none}
+.auth-err.show{display:block}
+.auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--g400)}
+.auth-switch a{color:var(--gd);font-weight:600;cursor:pointer;text-decoration:none}
+.auth-loading{text-align:center;padding:20px;color:var(--g400);font-size:13px}
+.toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
+<!-- AUTH SCREEN -->
+<div id="authScreen" style="display:none">
+  <div class="auth-wrap">
+    <div class="auth-logo">
+      <img src="" id="authLogo" alt="cobutlers" style="height:56px;object-fit:contain;filter:brightness(0) invert(1)">
+    </div>
+    <div class="auth-card">
+      <div id="loginForm">
+        <div class="auth-title">Willkommen</div>
+        <div class="auth-sub">Melde dich an um fortzufahren</div>
+        <div class="auth-err" id="loginErr"></div>
+        <div class="auth-field">
+          <label class="auth-label">E-Mail</label>
+          <input class="auth-inp" type="email" id="loginEmail" placeholder="deine@email.de" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Passwort</label>
+          <input class="auth-inp" type="password" id="loginPw" placeholder="Passwort" autocomplete="current-password">
+        </div>
+        <button class="auth-btn" onclick="doLogin()">Anmelden</button>
+        <div class="auth-switch">Noch kein Konto? <a onclick="showRegister()">Registrieren</a></div>
+      </div>
+      <div id="registerForm" style="display:none">
+        <div class="auth-title">Konto erstellen</div>
+        <div class="auth-sub">Kostenlos registrieren</div>
+        <div class="auth-err" id="regErr"></div>
+        <div class="auth-field">
+          <label class="auth-label">E-Mail</label>
+          <input class="auth-inp" type="email" id="regEmail" placeholder="deine@email.de" autocomplete="email">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Passwort</label>
+          <input class="auth-inp" type="password" id="regPw" placeholder="Mindestens 6 Zeichen" autocomplete="new-password">
+        </div>
+        <div class="auth-field">
+          <label class="auth-label">Passwort wiederholen</label>
+          <input class="auth-inp" type="password" id="regPw2" placeholder="Passwort wiederholen">
+        </div>
+        <button class="auth-btn" onclick="doRegister()">Registrieren</button>
+        <button class="auth-btn sec" onclick="showLogin()">Zurueck zur Anmeldung</button>
+      </div>
+      <div id="authLoading" style="display:none" class="auth-loading">Einen Moment...</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appWrap" style="display:none">
 <div id="appHdr"></div>
 <div id="pg"></div>
 
@@ -252,8 +321,183 @@ input[type=file]#photoInput{display:none}
 
 <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(this)">
 <div class="toast" id="toast"></div>
+</div><!-- end appWrap -->
 
 <script>
+// ============================================================
+// SUPABASE
+// ============================================================
+var SB=supabase.createClient(
+  'https://cgqffluahjhzsinxgonx.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNncWZmbHVhaGpoenNpbnhnb254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0NjM0ODIsImV4cCI6MjA5NTAzOTQ4Mn0.2HIoul967AxHr-avyhkPv7nFz7xY8RKSeDgf7-i-Cc0'
+);
+var currentUser=null;
+
+// Logo fuer Auth-Screen setzen
+(function(){
+  var logos=document.querySelectorAll('#authLogo');
+  logos.forEach(function(el){
+    el.src=document.querySelector('.pbox') ? '' :
+    (document.querySelector('img[alt="cobutlers Gebaeudereinigung"]')||{src:''}).src;
+  });
+})();
+
+function showAuthScreen(){
+  document.getElementById('authScreen').style.display='block';
+  document.getElementById('appWrap').style.display='none';
+}
+function showAppScreen(){
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appWrap').style.display='block';
+}
+function showLogin(){
+  document.getElementById('loginForm').style.display='block';
+  document.getElementById('registerForm').style.display='none';
+  document.getElementById('authLoading').style.display='none';
+}
+function showRegister(){
+  document.getElementById('loginForm').style.display='none';
+  document.getElementById('registerForm').style.display='block';
+  document.getElementById('authLoading').style.display='none';
+}
+function showAuthLoading(){
+  document.getElementById('loginForm').style.display='none';
+  document.getElementById('registerForm').style.display='none';
+  document.getElementById('authLoading').style.display='block';
+}
+function showAuthError(id,msg){
+  var el=document.getElementById(id);
+  el.textContent=msg;
+  el.className='auth-err show';
+}
+function hideAuthError(id){
+  var el=document.getElementById(id);
+  el.className='auth-err';
+}
+
+async function doLogin(){
+  hideAuthError('loginErr');
+  var email=document.getElementById('loginEmail').value.trim();
+  var pw=document.getElementById('loginPw').value;
+  if(!email||!pw){showAuthError('loginErr','Bitte E-Mail und Passwort eingeben.');return;}
+  showAuthLoading();
+  var result=await SB.auth.signInWithPassword({email:email,password:pw});
+  if(result.error){showLogin();showAuthError('loginErr',result.error.message==='Invalid login credentials'?'E-Mail oder Passwort falsch.':result.error.message);return;}
+  currentUser=result.data.user;
+  await loadFromCloud();
+  showAppScreen();
+  render();
+}
+
+async function doRegister(){
+  hideAuthError('regErr');
+  var email=document.getElementById('regEmail').value.trim();
+  var pw=document.getElementById('regPw').value;
+  var pw2=document.getElementById('regPw2').value;
+  if(!email||!pw){showAuthError('regErr','Bitte alle Felder ausfullen.');return;}
+  if(pw.length<6){showAuthError('regErr','Passwort muss mindestens 6 Zeichen haben.');return;}
+  if(pw!==pw2){showAuthError('regErr','Passworter stimmen nicht ueberein.');return;}
+  showAuthLoading();
+  var result=await SB.auth.signUp({email:email,password:pw});
+  if(result.error){showRegister();showAuthError('regErr',result.error.message);return;}
+  currentUser=result.data.user;
+  showRegister();
+  showAuthError('regErr','');
+  document.getElementById('regErr').style.background='#f0fdf4';
+  document.getElementById('regErr').style.borderColor='#86efac';
+  document.getElementById('regErr').style.color='#16a34a';
+  document.getElementById('regErr').textContent='Registrierung erfolgreich! Bitte E-Mail bestaetigen, dann anmelden.';
+  document.getElementById('regErr').className='auth-err show';
+}
+
+async function doLogout(){
+  await SB.auth.signOut();
+  currentUser=null;
+  SAVED=[];
+  showAuthScreen();
+  showLogin();
+}
+
+// ============================================================
+// CLOUD SYNC
+// ============================================================
+async function loadFromCloud(){
+  if(!currentUser)return;
+  // Einstellungen laden
+  var {data:profile}=await SB.from('profiles').select('*').eq('id',currentUser.id).single();
+  if(profile&&profile.settings&&Object.keys(profile.settings).length>0){
+    Object.assign(C,profile.settings);
+  }
+  // Kalkulationen laden
+  var {data:kalk}=await SB.from('kalkulationen').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  if(kalk){
+    SAVED=kalk.map(function(k){
+      return {id:k.id,type:k.type,name:k.name,detail:k.detail,price:k.price,
+        status:k.status,photos:k.photos||[],data:k.data,date:new Date(k.created_at).toLocaleDateString('de-DE')};
+    });
+  }
+}
+
+async function saveKalkCloud(type,finalP){
+  if(!currentUser)return;
+  var name,detail,data;
+  if(type==='unt'){var c=calcU();name=U.fn||'Unbekannt';detail=U.turnus+' | '+U.ma+'MA | '+c.stdR.toFixed(2)+' Std.';data=JSON.parse(JSON.stringify(U));}
+  else if(type==='bau'){var c=calcB();var totM2=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);name=B.fn||'Unbekannt';detail=totM2.toFixed(0)+' m2 | '+B.art+' | '+B.ma+'MA';data=JSON.parse(JSON.stringify(B));}
+  else{var c=calcF();name=F.fn||'Unbekannt';detail=c.totalM2beid.toFixed(1)+' m2 beids. | '+F.ma+'MA';data=JSON.parse(JSON.stringify(F));}
+  var {data:inserted,error}=await SB.from('kalkulationen').insert({
+    user_id:currentUser.id,type:type,name:name,detail:detail,
+    price:fmt(finalP),status:'Offen',data:data,photos:[]
+  }).select().single();
+  if(error){showToast('Fehler beim Speichern!');return;}
+  SAVED.unshift({id:inserted.id,type:type,name:name,detail:detail,price:fmt(finalP),
+    status:'Offen',photos:[],data:data,date:new Date().toLocaleDateString('de-DE')});
+  showToast('Gespeichert!');
+  render();
+}
+
+async function setStatusCloud(idx,st){
+  var item=SAVED[idx];
+  if(!item)return;
+  if(item.id){
+    await SB.from('kalkulationen').update({status:st}).eq('id',item.id);
+  }
+  SAVED[idx].status=st;
+  render();
+}
+
+async function delSavedCloud(idx){
+  var item=SAVED[idx];
+  if(!item)return;
+  if(item.id){
+    await SB.from('kalkulationen').delete().eq('id',item.id);
+  }
+  SAVED.splice(idx,1);
+  render();
+}
+
+async function saveSettingsCloud(){
+  if(!currentUser)return;
+  await SB.from('profiles').upsert({id:currentUser.id,settings:C});
+}
+
+// Session beim Start pruefen
+SB.auth.getSession().then(function(result){
+  var session=result.data.session;
+  if(session&&session.user){
+    currentUser=session.user;
+    loadFromCloud().then(function(){
+      showAppScreen();
+      render();
+    });
+  } else {
+    // Logo in Auth-Screen setzen
+    var appLogo=document.querySelector('#appWrap img[alt="cobutlers Gebaeudereinigung"]');
+    if(appLogo){document.getElementById('authLogo').src=appLogo.src;}
+    showAuthScreen();
+    showLogin();
+  }
+});
+
 var C={untR:20.25,bauR:22.95,mat:3,bauM2:140,fenM2h:40,stdTag:7,maxUeStd:2,
   firmName:'cobutlers Gebaeudereinigung',firmStr:'Ortenburgerring 13',
   firmPlz:'84140 Gangkofen',firmTel:'+49 8722 9664451',firmEmail:'info@cobutlers.de'};
@@ -413,9 +657,9 @@ function renderDash(){
 
   var h='<div class="dash-hdr">'
     +'<button class="dash-gear" onclick="openSettings()">&#9881;</button>'
-    +'<div class="dash-logo-wrap">'
-    +'<div class="dash-logo-ic">&#x1F934;</div>'
-    +'<div><div class="dash-nm">cobutlers</div><div class="dash-sub">Gebaeudereinigung</div></div>'
+    +'<button class="dash-gear" onclick="doLogout()" style="right:54px;left:auto;position:absolute;top:14px" title="Abmelden">&#x2192;</button>'
+    +'<div style="position:relative;z-index:1;margin-bottom:10px">'
+    +'<img src="data:image/png;base64,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" style="height:68px;max-width:280px;object-fit:contain" alt="cobutlers Gebaeudereinigung">'
     +'</div>'
     +'<div class="dash-addr">'+C.firmStr+' &middot; '+C.firmPlz+'</div>'
     +'</div>';
@@ -568,28 +812,11 @@ function doCopy(type){
 // ============================================================
 // SAVE / ARCHIVE
 // ============================================================
-function saveKalk(type,finalP){
-  var name,detail;
-  if(type==='unt'){var c=calcU();name=U.fn||'Unbekannt';detail=U.turnus+' | '+U.ma+'MA | '+c.stdR.toFixed(2)+' Std.';}
-  else if(type==='bau'){var c=calcB();var totM2=B.etagen.reduce(function(s,e){return s+(parseFloat(e.m2)||0);},0);name=B.fn||'Unbekannt';detail=totM2.toFixed(0)+' m2 | '+B.art+' | '+B.ma+'MA';}
-  else{var c=calcF();name=F.fn||'Unbekannt';detail=c.totalM2beid.toFixed(1)+' m2 beids. | '+F.ma+'MA';}
-  SAVED.push({type:type,name:name,detail:detail,price:fmt(finalP),date:now(),
-    status:'Offen',photos:[],data:JSON.parse(JSON.stringify(type==='unt'?U:type==='bau'?B:F))});
-  try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
-  showToast('Gespeichert!');
-}
+function saveKalk(type,finalP){saveKalkCloud(type,finalP);}
 
-function setStatus(idx,st){
-  SAVED[idx].status=st;
-  try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
-  render();
-}
+function setStatus(idx,st){setStatusCloud(idx,st);}
 
-function delSaved(idx){
-  SAVED.splice(idx,1);
-  try{localStorage.setItem('cb_saved',JSON.stringify(SAVED));}catch(e){}
-  render();
-}
+function delSaved(idx){delSavedCloud(idx);}
 
 // Mail direkt aus Kalkulations-Screen (Live-Daten)
 function sendKalkMail(type){
@@ -1542,7 +1769,7 @@ function saveSettings(){
   C.firmName=gv('sf_n')||C.firmName;C.firmStr=gv('sf_str')||C.firmStr;
   C.firmPlz=gv('sf_plz')||C.firmPlz;C.firmTel=gv('sf_tel')||C.firmTel;
   C.firmEmail=gv('sf_email')||C.firmEmail;
-  try{localStorage.setItem('cb_cfg',JSON.stringify(C));}catch(e){}
+  saveSettingsCloud();
   document.getElementById('ov').className='ov';
   showToast('Gespeichert!');
 }
@@ -1558,9 +1785,7 @@ function closeOv(e){if(e.target===document.getElementById('ov'))document.getElem
 // ============================================================
 // INIT
 // ============================================================
-try{var sc=localStorage.getItem('cb_cfg');if(sc)Object.assign(C,JSON.parse(sc));}catch(e){}
-try{var sv=localStorage.getItem('cb_saved');if(sv)SAVED=JSON.parse(sv);}catch(e){}
-render();
+// Init wird durch SB.auth.getSession() oben gesteuert
 </script>
 </body>
 </html>
