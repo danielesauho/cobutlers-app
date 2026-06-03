@@ -591,6 +591,17 @@ function goMod(mod,fresh){
 }
 function goArch(mod){SCR='arch-'+mod;render();}
 function goDash(){clearDraft();SCR='dash';render();}
+function goBack(){
+  var step=SCR==='unt'?untStep:SCR==='bau'?bauStep:fenStep;
+  if(step>0){
+    if(SCR==='unt')untStep--;
+    else if(SCR==='bau')bauStep--;
+    else fenStep--;
+    render();
+  } else {
+    if(confirm('Kalkulation verlassen?\n\nAlle Eingaben gehen verloren.')){goDash();}
+  }
+}
 
 function renderHdr(){
   var hdr=document.getElementById('appHdr');
@@ -611,7 +622,7 @@ function renderHdr(){
   var dots='';
   for(var i=0;i<steps.length;i++)dots+='<div class="sdot'+(i<cur?' done':i===cur?' active':'')+'" ></div>';
   hdr.innerHTML='<div class="mod-hdr"><div class="mod-hdr-top">'
-    +'<button class="back-btn" onclick="goDash()">&#8592;</button>'
+    +'<button class="back-btn" onclick="goBack()">&#8592;</button>'
     +'<div class="mod-tw"><div class="mod-title">'+titles[mod]+'</div><div class="mod-sub">Kalkulation</div></div>'
     +'<button class="back-btn" onclick="goArch(\''+mod+'\')" style="margin-left:auto;font-size:14px">&#x1F4CB;</button>'
     +'<button class="back-btn" onclick="openSettings()">&#9881;</button>'
