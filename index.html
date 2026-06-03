@@ -1192,10 +1192,11 @@ function uS4(){
   h+='<hr class="bkd"><div class="bktot"><span>Gesamt/Reinigung</span><span class="bktot-v">'+stdR.toFixed(2)+' Std.</span></div></div></div>';
   h+='<div class="sec">Paketvergleich</div>';
   h+='<div class="rcard"><div class="rhead">MONATSPREISE</div>';
-  [{n:'Quick',r:23},{n:'Basic',r:29},{n:'Premium',r:35}].forEach(function(p){
-    var u=p.r*stdMo,k=lohnMo+u*(C.mat/100),g=u-k,mg=(g/u*100).toFixed(1);
-    h+='<div class="pkg-row"><div><div class="pkg-n">'+p.n+' &middot; '+p.r+' Euro/Std.</div><div class="pkg-d">Marge: '+mg+'% &middot; Gewinn: '+fmt(g)+'/Mo.</div></div>'
-      +'<div><div class="pkg-a">'+fmt(u)+'</div><div class="pkg-m">/ Monat</div></div></div>';
+  [{n:'Quick',id:'quick',r:23},{n:'Basic',id:'basic',r:29},{n:'Premium',id:'premium',r:35}].forEach(function(p){
+    var u=p.r*stdMo*liveAdj.unt,k=lohnMo+u*(C.mat/100),g=u-k,mg=(g/u*100).toFixed(1);
+    h+='<div class="pkg-row"><div><div class="pkg-n">'+p.n+' · '+p.r+' €/Std.</div>'
+      +'<div class="pkg-d" id="pkg_d_unt_'+p.id+'">Marge: '+mg+'% · Gewinn: '+fmt(g)+'/Mo.</div></div>'
+      +'<div><div class="pkg-a" id="pkg_a_unt_'+p.id+'">'+fmt(u)+'</div><div class="pkg-m">/ Monat</div></div></div>';
   });
   h+='</div>';
   var basePreis=29*stdMo;
@@ -1204,10 +1205,16 @@ function uS4(){
   var liveG=liveP-liveK;
   var liveM=(liveG/liveP*100).toFixed(1);
   var mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
-  h+='<div class="pbox"><div class="pbox-l">Live-Preisanpassung (Basic)</div>'
+  var adjUntPct=(liveAdj.unt-1)*100;
+  var adjUntLabel=adjUntPct===0?'±0%':(adjUntPct>0?'+'+adjUntPct.toFixed(0)+'% teurer':adjUntPct.toFixed(0)+'% günstiger');
+  h+='<div class="pbox">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+    +'<div class="pbox-l" style="margin-bottom:0">Verhandlungsregler</div>'
+    +'<div id="adjBadge_unt" style="background:rgba(255,255,255,.18);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;color:#fff">'+adjUntLabel+'</div>'
+    +'</div>'
     +'<div class="pbox-v" id="liveP_unt">'+fmt(liveP)+'</div>'
-    +'<div class="pbox-s">/ Monat &middot; '+stdR.toFixed(2)+' Std./Reinigung</div>'
-    +'<div class="slider-wrap"><div class="slider-lbl">Verhandlungsregler</div>'
+    +'<div class="pbox-s">Basic · / Monat · '+stdR.toFixed(2)+' Std./Reinigung</div>'
+    +'<div class="slider-wrap"><div class="slider-lbl">Alle Pakete anpassen</div>'
     +'<div class="slider-row"><span class="slider-min">-30%</span>'
     +'<input type="range" class="slider" id="sl_unt" min="70" max="130" value="'+(liveAdj.unt*100)+'" oninput="adjP(\'unt\',this.value)">'
     +'<span class="slider-max">+30%</span></div>'
@@ -1391,7 +1398,13 @@ function bS2(){
   var liveG=liveP-liveK;
   var liveM=(liveG/liveP*100).toFixed(1);
   var mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
-  h+='<div class="pbox"><div class="pbox-l">'+(B.extraOn&&c.extra>0?'Preis inkl. Aufschlag':'Preisblatt-Preis')+' &middot; Verhandlungsregler</div>'
+  var adjBauPct=(liveAdj.bau-1)*100;
+  var adjBauLabel=adjBauPct===0?'±0%':(adjBauPct>0?'+'+adjBauPct.toFixed(0)+'% teurer':adjBauPct.toFixed(0)+'% günstiger');
+  h+='<div class="pbox">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+    +'<div class="pbox-l" style="margin-bottom:0">'+(B.extraOn&&c.extra>0?'Preis inkl. Aufschlag':'Preisblatt-Preis')+'</div>'
+    +'<div id="adjBadge_bau" style="background:rgba(255,255,255,.18);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;color:#fff">'+adjBauLabel+'</div>'
+    +'</div>'
     +'<div class="pbox-v" id="liveP_bau">'+fmt(liveP)+'</div>'
     +'<div class="pbox-s">netto &middot; '+c.pricePerM2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>'
     +'<div class="slider-wrap"><div class="slider-lbl">Verhandlungsregler</div>'
@@ -1691,27 +1704,32 @@ function fS2(){
   h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:6px">FEIN</div>';
   h+='<div style="font-size:28px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="liveP_fen">'+fmt(livePF)+'</div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:3px">'+cf.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
-  h+='<div style="background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff;display:inline-block;margin-top:8px">Marge: <span id="marg_fen">'+liveMF+'</span>%</div>';
+  h+='<div style="background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff;display:inline-block;margin-top:8px">Marge: <span id="marg_fen">'+liveMF+'%</span></div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px">Gewinn: <span id="gew_fen">'+fmt(liveGF)+'</span></div>';
   h+='</div>';
 
   // QUICK Kasten
-  var preisQuickLive=cf.preis*0.72; // 28% guenstiger als Fein
+  var preisQuickLive=cf.preis*0.72*liveAdj.fen;
   var liveKQ=cq.lohn+cq.fahrt+preisQuickLive*(C.mat/100);
   var liveGQ=preisQuickLive-liveKQ;
   var liveMQ=(liveGQ/preisQuickLive*100).toFixed(1);
   h+='<div style="background:linear-gradient(135deg,#243044,#1a2332);border-radius:14px;padding:14px;text-align:center;border:1.5px solid var(--n2)">';
   h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl);margin-bottom:6px">QUICK <span style="font-size:9px;color:var(--g400)">(-28%)</span></div>';
-  h+='<div style="font-size:28px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff">'+fmt(preisQuickLive)+'</div>';
+  h+='<div style="font-size:28px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="liveP_fen_quick">'+fmt(preisQuickLive)+'</div>';
   h+='<div style="font-size:11px;color:var(--g400);margin-top:3px">'+cq.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
-  h+='<div style="background:rgba(139,196,168,.15);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--gl);display:inline-block;margin-top:8px">Marge: '+liveMQ+'%</div>';
-  h+='<div style="font-size:11px;color:var(--g400);margin-top:4px">Gewinn: '+fmt(liveGQ)+'</div>';
+  h+='<div id="marg_fen_quick" style="background:rgba(139,196,168,.15);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--gl);display:inline-block;margin-top:8px">Marge: '+liveMQ+'%</div>';
+  h+='<div id="gew_fen_quick" style="font-size:11px;color:var(--g400);margin-top:4px">Gewinn: '+fmt(liveGQ)+'</div>';
   h+='</div>';
   h+='</div>';
 
-  // SLIDER nur fuer Fein
+  // SLIDER fuer Fein + Quick
+  var adjFenPct=(liveAdj.fen-1)*100;
+  var adjFenLabel=adjFenPct===0?'±0%':(adjFenPct>0?'+'+adjFenPct.toFixed(0)+'% teurer':adjFenPct.toFixed(0)+'% günstiger');
   h+='<div class="pbox" style="margin-bottom:10px">';
-  h+='<div class="pbox-l">Fein-Preis Verhandlungsregler</div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+    +'<div class="pbox-l" style="margin-bottom:0">Verhandlungsregler</div>'
+    +'<div id="adjBadge_fen" style="background:rgba(255,255,255,.18);border-radius:20px;padding:4px 14px;font-size:13px;font-weight:700;color:#fff">'+adjFenLabel+'</div>'
+    +'</div>';
   h+='<div class="slider-wrap" style="margin-top:0;padding-top:10px;border-top:none">';
   h+='<div class="slider-row"><span class="slider-min">-30%</span>'
     +'<input type="range" class="slider" id="sl_fen" min="70" max="130" value="'+(liveAdj.fen*100)+'" oninput="adjP(\'fen\',this.value)">'
@@ -1775,16 +1793,53 @@ function adjP(type,val){
   var pct=parseFloat(val)/100;
   liveAdj[type]=pct;
   var liveP,liveK,liveG,liveM,mc;
-  if(type==='unt'){var c=calcU();liveP=29*c.stdMo*pct;liveK=c.lohnMo+liveP*(C.mat/100);liveG=liveP-liveK;}
-  else if(type==='bau'){var c=calcB();liveP=c.preisInkl*pct;liveK=c.lohn+c.fahrt+liveP*(C.mat/100);liveG=liveP-liveK;}
-  else{var c=calcF();liveP=c.fein.preis*pct;liveK=c.fein.lohn+c.fein.fahrt+liveP*(C.mat/100);liveG=liveP-liveK;}
-  liveM=(liveG/liveP*100).toFixed(1);
-  mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
-  var sfx='_'+type;
-  var ep=document.getElementById('liveP'+sfx);if(ep)ep.textContent=fmt(liveP);
-  var ea=document.getElementById('adj'+sfx);if(ea)ea.textContent=(pct>=1?'+':'')+((pct-1)*100).toFixed(0)+'%';
-  var em=document.getElementById('marg'+sfx);if(em){em.textContent=liveM+'%';em.className='sinfo-val '+mc;}
-  var eg=document.getElementById('gew'+sfx);if(eg){eg.textContent=fmt(liveG);eg.className='sinfo-val '+mc;}
+
+  if(type==='unt'){
+    var c=calcU();
+    liveP=29*c.stdMo*pct;liveK=c.lohnMo+liveP*(C.mat/100);liveG=liveP-liveK;
+    liveM=(liveG/liveP*100).toFixed(1);mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
+    var ep=document.getElementById('liveP_unt');if(ep)ep.textContent=fmt(liveP);
+    var em=document.getElementById('marg_unt');if(em){em.textContent=liveM+'%';em.className='sinfo-val '+mc;}
+    var eg=document.getElementById('gew_unt');if(eg){eg.textContent=fmt(liveG);eg.className='sinfo-val '+mc;}
+    [{id:'quick',r:23},{id:'basic',r:29},{id:'premium',r:35}].forEach(function(p){
+      var pu=p.r*c.stdMo*pct,pk=c.lohnMo+pu*(C.mat/100),pg=pu-pk,pmg=(pg/pu*100).toFixed(1);
+      var ea=document.getElementById('pkg_a_unt_'+p.id);if(ea)ea.textContent=fmt(pu);
+      var ed=document.getElementById('pkg_d_unt_'+p.id);if(ed)ed.textContent='Marge: '+pmg+'% · Gewinn: '+fmt(pg)+'/Mo.';
+    });
+
+  } else if(type==='bau'){
+    var c=calcB();
+    liveP=c.preisInkl*pct;liveK=c.lohn+c.fahrt+liveP*(C.mat/100);liveG=liveP-liveK;
+    liveM=(liveG/liveP*100).toFixed(1);mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
+    var ep=document.getElementById('liveP_bau');if(ep)ep.textContent=fmt(liveP);
+    var em=document.getElementById('marg_bau');if(em){em.textContent=liveM+'%';em.className='sinfo-val '+mc;}
+    var eg=document.getElementById('gew_bau');if(eg){eg.textContent=fmt(liveG);eg.className='sinfo-val '+mc;}
+
+  } else {
+    var c=calcF();
+    liveP=c.fein.preis*pct;liveK=c.fein.lohn+c.fein.fahrt+liveP*(C.mat/100);liveG=liveP-liveK;
+    liveM=(liveG/liveP*100).toFixed(1);mc=parseFloat(liveM)>=25?'':parseFloat(liveM)>=15?'warn':'danger';
+    var ep=document.getElementById('liveP_fen');if(ep)ep.textContent=fmt(liveP);
+    var em=document.getElementById('marg_fen');if(em)em.textContent=liveM+'%';
+    var eg=document.getElementById('gew_fen');if(eg)eg.textContent=fmt(liveG);
+    var em2=document.getElementById('marg_fen2');if(em2){em2.textContent=liveM+'%';em2.className='sinfo-val '+mc;}
+    var eg2=document.getElementById('gew_fen2');if(eg2){eg2.textContent=fmt(liveG);eg2.className='sinfo-val '+mc;}
+    var preisQ=c.fein.preis*0.72*pct;
+    var liveKQ=c.quick.lohn+c.quick.fahrt+preisQ*(C.mat/100);
+    var liveGQ=preisQ-liveKQ;var liveMQ=(liveGQ/preisQ*100).toFixed(1);
+    var eqp=document.getElementById('liveP_fen_quick');if(eqp)eqp.textContent=fmt(preisQ);
+    var eqm=document.getElementById('marg_fen_quick');if(eqm)eqm.textContent='Marge: '+liveMQ+'%';
+    var eqg=document.getElementById('gew_fen_quick');if(eqg)eqg.textContent='Gewinn: '+fmt(liveGQ);
+  }
+
+  var ea=document.getElementById('adj_'+type);
+  if(ea)ea.textContent=(pct>=1?'+':'')+((pct-1)*100).toFixed(0)+'%';
+  var adjB=document.getElementById('adjBadge_'+type);
+  if(adjB){
+    var ap=(pct-1)*100;
+    adjB.textContent=ap===0?'±0%':(ap>0?'+'+ap.toFixed(0)+'% teurer':ap.toFixed(0)+'% günstiger');
+    adjB.style.background=ap>2?'rgba(255,100,80,.35)':ap<-2?'rgba(80,210,120,.25)':'rgba(255,255,255,.18)';
+  }
 }
 
 // ============================================================
