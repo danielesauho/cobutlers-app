@@ -385,8 +385,10 @@ async function doLogin(){
   if(result.error){showLogin();showAuthError('loginErr',result.error.message==='Invalid login credentials'?'E-Mail oder Passwort falsch.':result.error.message);return;}
   currentUser=result.data.user;
   await loadFromCloud();
+  var restored=loadDraft();
   showAppScreen();
   render();
+  if(restored)showToast('Entwurf wiederhergestellt');
 }
 
 async function doRegister(){
@@ -411,11 +413,43 @@ async function doRegister(){
 }
 
 async function doLogout(){
+  clearDraft();
   await SB.auth.signOut();
   currentUser=null;
   SAVED=[];
   showAuthScreen();
   showLogin();
+}
+
+// ============================================================
+// DRAFT AUTO-SAVE
+// ============================================================
+function saveDraft(){
+  if(!currentUser||SCR==='dash'||SCR.indexOf('arch-')===0)return;
+  try{localStorage.setItem('cb_draft_'+currentUser.id,JSON.stringify(
+    {scr:SCR,untStep:untStep,bauStep:bauStep,fenStep:fenStep,U:U,B:B,F:F,liveAdj:liveAdj}
+  ));}catch(e){}
+}
+function loadDraft(){
+  if(!currentUser)return false;
+  try{
+    var d=localStorage.getItem('cb_draft_'+currentUser.id);
+    if(!d)return false;
+    var dr=JSON.parse(d);
+    if(dr.scr)SCR=dr.scr;
+    if(typeof dr.untStep==='number')untStep=dr.untStep;
+    if(typeof dr.bauStep==='number')bauStep=dr.bauStep;
+    if(typeof dr.fenStep==='number')fenStep=dr.fenStep;
+    if(dr.U)Object.assign(U,dr.U);
+    if(dr.B)Object.assign(B,dr.B);
+    if(dr.F)Object.assign(F,dr.F);
+    if(dr.liveAdj)Object.assign(liveAdj,dr.liveAdj);
+    return true;
+  }catch(e){return false;}
+}
+function clearDraft(){
+  if(!currentUser)return;
+  try{localStorage.removeItem('cb_draft_'+currentUser.id);}catch(e){}
 }
 
 // ============================================================
@@ -451,6 +485,7 @@ async function saveKalkCloud(type,finalP){
   if(error){showToast('Fehler beim Speichern!');return;}
   SAVED.unshift({id:inserted.id,type:type,name:name,detail:detail,price:fmt(finalP),
     status:'Offen',photos:[],data:data,date:new Date().toLocaleDateString('de-DE')});
+  clearDraft();
   showToast('Gespeichert!');
   render();
 }
@@ -486,8 +521,10 @@ SB.auth.getSession().then(function(result){
   if(session&&session.user){
     currentUser=session.user;
     loadFromCloud().then(function(){
+      var restored=loadDraft();
       showAppScreen();
       render();
+      if(restored)showToast('Entwurf wiederhergestellt');
     });
   } else {
     // Logo in Auth-Screen setzen
@@ -553,7 +590,7 @@ function goMod(mod,fresh){
   render();
 }
 function goArch(mod){SCR='arch-'+mod;render();}
-function goDash(){SCR='dash';render();}
+function goDash(){clearDraft();SCR='dash';render();}
 
 function renderHdr(){
   var hdr=document.getElementById('appHdr');
@@ -586,6 +623,7 @@ function renderHdr(){
 
 function render(){
   renderHdr();
+  saveDraft();
   var pg=document.getElementById('pg');
   if(SCR==='dash'){pg.innerHTML=renderDash();return;}
   if(SCR==='arch-unt'){pg.innerHTML=renderArch('unt');return;}
@@ -1741,9 +1779,9 @@ function adjP(type,val){
 // ============================================================
 // RESET
 // ============================================================
-function resetU(silent){U.fn='';U.fa='';U.fe='';U.ftel='';U.fap='';U.turnus='woechentlich';U.tage=[];U.uhr='';U.of='';U.ma=1;U.raeume.forEach(function(r){r.m2=0;});U.hWC=0;U.dWC=0;U.hD=0;U.dD=0;U.pis=0;U.bWC=0;U.muell=true;U.nach=true;U.ofl=true;U.tg=true;U.spi=true;U.fenI=false;U.kuehl=false;U.notes='';untStep=0;liveAdj.unt=1.0;SCR='unt';if(!silent)render();}
-function resetB(silent){B.fn='';B.fa='';B.fe='';B.ftel='';B.fap='';B.etagen=[{name:'EG',m2:0}];B.art='fein';B.schmutz='mittel';B.extraOn=false;B.klebe=false;B.farbe=false;B.gips=false;B.folie=false;B.fliesen=false;B.sonder=false;B.notes='';B.fahrtMin=60;B.ma=2;bauStep=0;liveAdj.bau=1.0;SCR='bau';if(!silent)render();}
-function resetF(silent){F.fn='';F.fa='';F.fe='';F.ftel='';F.fap='';F.art='fein';F.gruppen=[{typ:'standard',b:'',h:'',anz:'1',seite:'beidseitig'}];F.fahrtMin=60;F.ma=1;fenStep=0;liveAdj.fen=1.0;SCR='fen';if(!silent)render();}
+function resetU(silent){clearDraft();U.fn='';U.fa='';U.fe='';U.ftel='';U.fap='';U.turnus='woechentlich';U.tage=[];U.uhr='';U.of='';U.ma=1;U.raeume.forEach(function(r){r.m2=0;});U.hWC=0;U.dWC=0;U.hD=0;U.dD=0;U.pis=0;U.bWC=0;U.muell=true;U.nach=true;U.ofl=true;U.tg=true;U.spi=true;U.fenI=false;U.kuehl=false;U.notes='';untStep=0;liveAdj.unt=1.0;SCR='unt';if(!silent)render();}
+function resetB(silent){clearDraft();B.fn='';B.fa='';B.fe='';B.ftel='';B.fap='';B.etagen=[{name:'EG',m2:0}];B.art='fein';B.schmutz='mittel';B.extraOn=false;B.klebe=false;B.farbe=false;B.gips=false;B.folie=false;B.fliesen=false;B.sonder=false;B.notes='';B.fahrtMin=60;B.ma=2;bauStep=0;liveAdj.bau=1.0;SCR='bau';if(!silent)render();}
+function resetF(silent){clearDraft();F.fn='';F.fa='';F.fe='';F.ftel='';F.fap='';F.art='fein';F.gruppen=[{typ:'standard',b:'',h:'',anz:'1',seite:'beidseitig'}];F.fahrtMin=60;F.ma=1;fenStep=0;liveAdj.fen=1.0;SCR='fen';if(!silent)render();}
 
 // ============================================================
 // SETTINGS
@@ -1786,6 +1824,13 @@ function closeOv(e){if(e.target===document.getElementById('ov'))document.getElem
 // INIT
 // ============================================================
 // Init wird durch SB.auth.getSession() oben gesteuert
+
+window.addEventListener('beforeunload',function(e){
+  if(currentUser&&SCR!=='dash'&&SCR.indexOf('arch-')!==0){
+    e.preventDefault();
+    e.returnValue='';
+  }
+});
 </script>
 </body>
 </html>
