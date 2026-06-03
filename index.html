@@ -2,15 +2,28 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>cobutlers Kalkulation</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#1a2332;--n2:#243044;--gd:#4e9470;--gl:#8bc4a8;--gp:#e8f4ee;
---g100:#f5f6f8;--g200:#e8eaed;--g300:#d1d5db;--g400:#9ba3af;--g600:#5a6270}
+--g100:#f5f6f8;--g200:#e8eaed;--g300:#d1d5db;--g400:#717885;--g500:#6b7280;--g600:#525a68}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'DM Sans',sans-serif;background:var(--g100);color:var(--navy);min-height:100vh;padding-bottom:90px}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--g100);color:var(--navy);min-height:100vh;padding-bottom:90px;overflow-x:hidden}
+
+/* RESPONSIVE CONTAINER */
+#appWrap,#authScreen{max-width:600px;margin:0 auto;position:relative;width:100%}
+@media(min-width:601px){
+  body{background:#dfe2e8}
+  #appWrap{min-height:100vh;background:var(--g100);box-shadow:0 0 0 1px var(--g200),0 12px 48px rgba(26,35,50,.12)}
+}
+/* ACCESSIBILITY */
+:focus-visible{outline:3px solid #2d6e4e;outline-offset:2px;border-radius:4px}
+.slider:focus-visible{outline-offset:6px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 
 /* DASHBOARD */
 .dash-hdr{background:var(--navy);padding:44px 20px 32px;text-align:center;position:relative;overflow:hidden}
@@ -26,7 +39,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--g100);color:var(--navy);m
 .dsec{font-size:10px;font-weight:700;letter-spacing:1.3px;text-transform:uppercase;color:var(--g400);margin:18px 0 10px}
 .dstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .dstat{background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-.dstat-v{font-size:20px;font-weight:700;font-family:'DM Mono',monospace;color:var(--navy)}
+.dstat-v{font-size:clamp(17px,5vw,20px);font-weight:700;font-family:'DM Mono',monospace;color:var(--navy);overflow-wrap:anywhere}
 .dstat-l{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--g400);margin-top:3px}
 .dmod{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.06);margin-bottom:10px}
 .dmod-top{padding:16px;display:flex;align-items:center;gap:14px}
@@ -116,7 +129,7 @@ textarea.inp{height:70px;padding:10px 12px;resize:none;font-size:13px;line-heigh
 .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .rbox{background:var(--n2);border-radius:10px;padding:11px}
 .rbox-l{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--g400);margin-bottom:3px}
-.rbox-v{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#fff}
+.rbox-v{font-size:clamp(15px,4.6vw,18px);font-weight:700;font-family:'DM Mono',monospace;color:#fff;overflow-wrap:anywhere}
 .rbox-v.gr{color:var(--gl)}
 .rbox-v.rd{color:#ff8080}
 .rbox-v.or{color:#ffb866}
@@ -131,7 +144,7 @@ textarea.inp{height:70px;padding:10px 12px;resize:none;font-size:13px;line-heigh
 .bktot-v{font-family:'DM Mono',monospace;color:var(--gl)}
 .pbox{background:linear-gradient(135deg,#4a9270,#2d6e4e);border-radius:14px;padding:18px;margin-bottom:10px}
 .pbox-l{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:5px;text-align:center}
-.pbox-v{font-size:32px;font-weight:700;font-family:'DM Mono',monospace;color:#fff;text-align:center}
+.pbox-v{font-size:clamp(24px,7.5vw,32px);font-weight:700;font-family:'DM Mono',monospace;color:#fff;text-align:center;overflow-wrap:anywhere}
 .pbox-s{font-size:11px;color:rgba(255,255,255,.6);margin-top:3px;text-align:center}
 .pbox-b{display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:700;color:#fff;margin-top:7px}
 .pbox-center{text-align:center;margin-top:10px}
@@ -139,7 +152,7 @@ textarea.inp{height:70px;padding:10px 12px;resize:none;font-size:13px;line-heigh
 .pkg-row:last-child{margin-bottom:0}
 .pkg-n{font-size:13px;font-weight:700;color:#fff}
 .pkg-d{font-size:11px;color:var(--g400);margin-top:1px}
-.pkg-a{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:#fff;text-align:right}
+.pkg-a{font-size:clamp(15px,4.6vw,18px);font-weight:700;font-family:'DM Mono',monospace;color:#fff;text-align:right;overflow-wrap:anywhere}
 .pkg-m{font-size:11px;color:var(--g400)}
 .slider-wrap{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.15)}
 .slider-lbl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px;text-align:center}
@@ -153,6 +166,15 @@ textarea.inp{height:70px;padding:10px 12px;resize:none;font-size:13px;line-heigh
 .sinfo-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:#fff;margin-top:2px;display:block}
 .sinfo-val.warn{color:#ffb866}
 .sinfo-val.danger{color:#ff8080}
+
+/* UEBERSTUNDEN-HINWEIS PRO PAKET */
+.ue-tip{margin-top:8px;background:rgba(139,196,168,.12);border:1.5px solid var(--gd);border-radius:11px;padding:9px 11px;display:flex;align-items:center;gap:9px;text-align:left}
+.ue-tip-ic{width:26px;height:26px;flex-shrink:0;border-radius:8px;background:var(--gd);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+.ue-tip-txt{flex:1;min-width:0}
+.ue-tip-h{font-size:11px;font-weight:700;color:#2d6e4e;line-height:1.25}
+.ue-tip-s{font-size:10px;color:var(--g600);margin-top:1px;line-height:1.3}
+.ue-tip-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:#2d6e4e;white-space:nowrap;flex-shrink:0}
+.ue-none{margin-top:8px;font-size:10px;color:var(--g400);text-align:center;padding:2px}
 
 /* COPY BOX */
 .copy-box{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
@@ -194,9 +216,9 @@ input[type=file]#photoInput{display:none}
 .arch-empty{text-align:center;padding:40px 20px;color:var(--g400);font-size:13px}
 
 /* SETTINGS */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:none;align-items:flex-end;justify-content:center}
 .ov.show{display:flex}
-.panel{background:#fff;border-radius:20px 20px 0 0;padding:18px 16px 50px;width:100%;max-height:88vh;overflow-y:auto;animation:up .3s ease}
+.panel{background:#fff;border-radius:20px 20px 0 0;padding:18px 16px calc(50px + env(safe-area-inset-bottom));width:100%;max-width:600px;max-height:88vh;overflow-y:auto;animation:up .3s ease}
 @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .ph{width:36px;height:4px;background:var(--g200);border-radius:2px;margin:0 auto 18px}
 .pt{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:6px}
@@ -288,9 +310,9 @@ input[type=file]#photoInput{display:none}
 <div id="pg"></div>
 
 <!-- SETTINGS -->
-<div class="ov" id="ov" onclick="closeOv(event)">
+<div class="ov" id="ov" onclick="closeOv(event)" role="dialog" aria-modal="true" aria-label="Einstellungen">
   <div class="panel">
-    <div class="ph"></div>
+    <div class="ph" aria-hidden="true"></div>
     <div class="pt">Einstellungen</div>
     <div class="pt-sub">Eigene Firmendaten</div>
     <div style="background:var(--g100);border-radius:10px;padding:12px">
@@ -306,22 +328,22 @@ input[type=file]#photoInput{display:none}
       <input class="si3" type="email" id="sf_email" placeholder="info@cobutlers.de">
     </div>
     <div class="pt-sub">Kostensaetze (intern)</div>
-    <div class="sr"><div><div class="sl">Vollkosten Unterhalt</div><div class="ss">Euro/Std. inkl. LNK</div></div><input class="si" type="number" id="s1" step="0.5"></div>
-    <div class="sr"><div><div class="sl">Vollkosten Bau &amp; Fenster</div><div class="ss">Euro/Std. inkl. LNK</div></div><input class="si" type="number" id="s2" step="0.5"></div>
-    <div class="sr"><div><div class="sl">Materialkosten %</div><div class="ss">vom Auftrag</div></div><input class="si" type="number" id="s4" step="0.5"></div>
+    <div class="sr"><div><div class="sl">Vollkosten Unterhalt</div><div class="ss">Euro/Std. inkl. LNK</div></div><input class="si" type="number" id="s1" step="0.5" aria-label="Vollkosten Unterhalt in Euro pro Stunde"></div>
+    <div class="sr"><div><div class="sl">Vollkosten Bau &amp; Fenster</div><div class="ss">Euro/Std. inkl. LNK</div></div><input class="si" type="number" id="s2" step="0.5" aria-label="Vollkosten Bau und Fenster in Euro pro Stunde"></div>
+    <div class="sr"><div><div class="sl">Materialkosten %</div><div class="ss">vom Auftrag</div></div><input class="si" type="number" id="s4" step="0.5" aria-label="Materialkosten in Prozent"></div>
     <div class="pt-sub">Produktivitaet</div>
-    <div class="sr"><div><div class="sl">Bau: m2/Tag pro MA</div><div class="ss">Nettoleistung</div></div><input class="si" type="number" id="s5" step="5"></div>
-    <div class="sr"><div><div class="sl">Fenster: m2/Std. pro MA</div><div class="ss">Beidseitig Quick</div></div><input class="si" type="number" id="s6" step="1"></div>
-    <div class="sr"><div><div class="sl">Arbeitsstunden/Tag</div><div class="ss">Produktiv, netto ohne Fahrt</div></div><input class="si" type="number" id="s7" step="0.5"></div>
-    <div class="sr"><div><div class="sl">Bezahlte Stunden/Tag</div><div class="ss">Lohnkosten pro voller Tag</div></div><input class="si" type="number" id="s9" step="0.5"></div>
-    <div class="sr"><div><div class="sl">Max. Ueberstunden/Tag</div><div class="ss">Pro MA (Bau &amp; Fenster)</div></div><input class="si" type="number" id="s8" step="0.5"></div>
+    <div class="sr"><div><div class="sl">Bau: m2/Tag pro MA</div><div class="ss">Nettoleistung</div></div><input class="si" type="number" id="s5" step="5" aria-label="Baureinigung Quadratmeter pro Tag pro Mitarbeiter"></div>
+    <div class="sr"><div><div class="sl">Fenster: m2/Std. pro MA</div><div class="ss">Beidseitig Quick</div></div><input class="si" type="number" id="s6" step="1" aria-label="Fenster Quadratmeter pro Stunde pro Mitarbeiter"></div>
+    <div class="sr"><div><div class="sl">Arbeitsstunden/Tag</div><div class="ss">Produktiv, netto ohne Fahrt</div></div><input class="si" type="number" id="s7" step="0.5" aria-label="Produktive Arbeitsstunden pro Tag"></div>
+    <div class="sr"><div><div class="sl">Bezahlte Stunden/Tag</div><div class="ss">Lohnkosten pro voller Tag</div></div><input class="si" type="number" id="s9" step="0.5" aria-label="Bezahlte Stunden pro Tag"></div>
+    <div class="sr"><div><div class="sl">Max. Ueberstunden/Tag</div><div class="ss">Pro MA (Bau &amp; Fenster)</div></div><input class="si" type="number" id="s8" step="0.5" aria-label="Maximale Ueberstunden pro Tag pro Mitarbeiter"></div>
     <button class="save-btn" onclick="saveSettings()">Speichern</button>
     <button class="reset-btn" onclick="resetDef()">Standardwerte wiederherstellen</button>
   </div>
 </div>
 
 <input type="file" id="photoInput" accept="image/*" capture="environment" onchange="handlePhoto(this)">
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 </div><!-- end appWrap -->
 
 <script>
@@ -612,9 +634,9 @@ function renderHdr(){
   var titles={unt:'Unterhalt',bau:'Baureinigung',fen:'Fensterreinigung'};
   if(isArch){
     hdr.innerHTML='<div class="mod-hdr"><div class="mod-hdr-top">'
-      +'<button class="back-btn" onclick="goDash()">&#8592;</button>'
+      +'<button class="back-btn" onclick="goDash()" aria-label="Zur&uuml;ck zur &Uuml;bersicht">&#8592;</button>'
       +'<div class="mod-tw"><div class="mod-title">'+titles[mod]+'</div><div class="mod-sub">Archiv</div></div>'
-      +'<button class="back-btn" onclick="openSettings()" style="margin-left:auto">&#9881;</button>'
+      +'<button class="back-btn" onclick="openSettings()" style="margin-left:auto" aria-label="Einstellungen">&#9881;</button>'
       +'</div></div>';
     return;
   }
@@ -622,13 +644,13 @@ function renderHdr(){
   var cur=SCR==='unt'?untStep:SCR==='bau'?bauStep:fenStep;
   var dots='';
   for(var i=0;i<steps.length;i++)dots+='<div class="sdot'+(i<cur?' done':i===cur?' active':'')+'" ></div>';
-  hdr.innerHTML='<div class="mod-hdr"><div class="mod-hdr-top">'
-    +'<button class="back-btn" onclick="goBack()">&#8592;</button>'
+  hdr.innerHTML='<div class="mod-hdr" role="navigation" aria-label="Kalkulation"><div class="mod-hdr-top">'
+    +'<button class="back-btn" onclick="goBack()" aria-label="Einen Schritt zur&uuml;ck">&#8592;</button>'
     +'<div class="mod-tw"><div class="mod-title">'+titles[mod]+'</div><div class="mod-sub">Kalkulation</div></div>'
-    +'<button class="back-btn" onclick="goArch(\''+mod+'\')" style="margin-left:auto;font-size:14px">&#x1F4CB;</button>'
-    +'<button class="back-btn" onclick="openSettings()">&#9881;</button>'
+    +'<button class="back-btn" onclick="goArch(\''+mod+'\')" style="margin-left:auto;font-size:14px" aria-label="Archiv &ouml;ffnen">&#x1F4CB;</button>'
+    +'<button class="back-btn" onclick="openSettings()" aria-label="Einstellungen">&#9881;</button>'
     +'</div>'
-    +'<div class="stepbar">'+dots+'</div>'
+    +'<div class="stepbar" role="progressbar" aria-valuemin="1" aria-valuemax="'+steps.length+'" aria-valuenow="'+(cur+1)+'" aria-label="Schritt '+(cur+1)+' von '+steps.length+': '+steps[cur]+'">'+dots+'</div>'
     +'<div class="slbl">Schritt '+(cur+1)+'/'+steps.length+': '+steps[cur]+'</div>'
     +'</div>';
 }
@@ -670,10 +692,10 @@ function cbox(lbl,k,val,ns){
     +'</div></div>';
 }
 function maStepper(ns,val){
-  return '<div class="ma-stp">'
-    +'<button class="ma-btn" onclick="chgMA(\''+ns+'\',-1)">&#8722;</button>'
-    +'<span class="ma-val" id="ma_'+ns+'">'+val+'</span>'
-    +'<button class="ma-btn" onclick="chgMA(\''+ns+'\',1)">+</button>'
+  return '<div class="ma-stp" role="group" aria-label="Anzahl Mitarbeiter">'
+    +'<button class="ma-btn" onclick="chgMA(\''+ns+'\',-1)" aria-label="Ein Mitarbeiter weniger">&#8722;</button>'
+    +'<span class="ma-val" id="ma_'+ns+'" aria-live="polite">'+val+'</span>'
+    +'<button class="ma-btn" onclick="chgMA(\''+ns+'\',1)" aria-label="Ein Mitarbeiter mehr">+</button>'
     +'</div>';
 }
 function chgMA(ns,d){var o=ns==='U'?U:ns==='B'?B:F;o.ma=Math.max(1,Math.min(5,o.ma+d));var e=document.getElementById('ma_'+ns);if(e)e.textContent=o.ma;}
@@ -694,6 +716,30 @@ function fmtTage(tageExakt,stdTag){
   return ts+' + '+zt;
 }
 
+// Ueberstunden-Ersparnis fuer ein Paket (preisunabhaengig).
+// Spart einen vollen bezahlten Tag + eine Fahrt, kostet dafuer echte Ueberstunden.
+function ueSaving(tageExakt,fahrtMin,ma){
+  var tage=Math.ceil(tageExakt);
+  if(tage<=1)return null;
+  var tm1=tage-1;
+  var ueStd=(tageExakt-tm1)*C.stdTag;
+  if(ueStd<=0||ueStd>C.maxUeStd)return null;
+  var mehr=ma*C.bauR*(C.zahlStd-ueStd)+calcFahrt(fahrtMin,ma,C.bauR);
+  var hh=Math.floor(ueStd),mm=Math.round((ueStd-hh)*60);
+  if(mm===60){hh++;mm=0;}
+  var stdStr=hh>0?(hh+'h'+(mm>0?' '+mm+'min':'')):(mm+'min');
+  return {tage:tm1,normalTage:tage,ueStd:ueStd,stdStr:stdStr,mehrGewinn:mehr};
+}
+function ueTip(sv){
+  if(!sv)return '';
+  return '<div class="ue-tip" role="note">'
+    +'<span class="ue-tip-ic" aria-hidden="true">&#9889;</span>'
+    +'<span class="ue-tip-txt"><span class="ue-tip-h">In '+sv.tage+' statt '+sv.normalTage+' Tag'+(sv.normalTage===1?'':'en')+' machbar</span>'
+    +'<span class="ue-tip-s">+'+sv.stdStr+' &Uuml;berstd./MA &middot; spart 1 Tag + Fahrt</span></span>'
+    +'<span class="ue-tip-val" title="Mehr Gewinn">+'+fmt(sv.mehrGewinn)+'</span>'
+    +'</div>';
+}
+
 // ============================================================
 // DASHBOARD
 // ============================================================
@@ -706,8 +752,8 @@ function renderDash(){
   var ang=SAVED.filter(function(s){return s.status==='Angenommen';}).length;
 
   var h='<div class="dash-hdr">'
-    +'<button class="dash-gear" onclick="openSettings()">&#9881;</button>'
-    +'<button class="dash-gear" onclick="doLogout()" style="right:54px;left:auto;position:absolute;top:14px" title="Abmelden">&#x2192;</button>'
+    +'<button class="dash-gear" onclick="openSettings()" aria-label="Einstellungen">&#9881;</button>'
+    +'<button class="dash-gear" onclick="doLogout()" style="right:54px;left:auto;position:absolute;top:14px" title="Abmelden" aria-label="Abmelden">&#x2192;</button>'
     +'<div style="position:relative;z-index:1;margin-bottom:10px">'
     +'<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgcAAAB6CAYAAAArgvANAAAe2UlEQVR42u2de7BkR13Hv7u5bDYPQs5CCCgEMmsCIq9iAuEhUIZZqEJTKDIbeRUqMpcIFKLgXISAJBhmJAnvwhmRQkIV1r2KVlmlRc1YSkQe1h1QgpRC7vBGHsmd8DZI0v5x+ng7h9Pn2d2nz5nvp+rU7s6eR/9+/ft1//p9SAgBQgghhJCIw1QBIYQQQhgcEEIIIYTBASGEEEIYHBBCCCGEwQEhhBBCqrJBFRDSSEYAurHfFgC2qBraRIwTVA1hcEDIetAF0KMaCG2C2IDDCoQQQghhcEAIIYQQPRxWIIQQeyR18y/lRQiDA0IIWUNmCb9tARhTNcRnOKxACCGEEAYHhBBCCGFwQAghhBAGB4QQQghhcEAIIYQQBgeEEEIIaX5wcCqA5wC4m6H33QfASwGc4Sj9DwbwRwAOGXrfSwA8jKZICCFkHYODDQB9AF8BcD2Ayw299zQAbwZwM4AXAjjdUvovBPA3AG4E8HQAwsA7AwBvBfBvAN4J4BhNkhBCyLoEB/cB8O8AtgHcQ/72OlmxV+UO+edRWcF+S7bGTQUJD5RBwX8BeJr87VZD7/5d5e8vBHCL/JMQQkj9dBDuctldN8Fd7JD4KAAfT/j9CIBnAni34e+dLlvjVwN4BYD3AvhBifc8QL7j6Zb0cgaA30/4/Z0A7o/mH73bVZyqk+JcCwArAHP597lHMgSKDNEVJNy3kmlfKDKsPM+fAGFPXlcpAHX5s1TkWlhO11CTBld2oasIxiXSnfaNIvjmF2m+HuS0JdsyDTS+mpWP/ZjPR8xR7ejreFmSR0c7qHObbSGEzetikc4tQoi7VPzG8YxvfFcI8VtCiNNyvu9nhBB/kfHOjxrQze9kfOPllvPGxtURQoyEEHuiPPtCiIkQolejHH0hxLaoxrYQYmAxjbOEb85yPNerKNueEGIohAgsyZXE0GHeDzVpKJNuUwwr2ISw6OtDA74+ku9y4R86XQRSlv2UtM4q6GlSQUe7lssR7WVzWOE8AB/LuOcYgCdbjn/OBPCnAL4O4NkIJ0Tq0ns9gM8BuMxymo7IYZU03gjgcQ3pJQgATADsyRZUp+K7Bgj3pJ857s4bSBm2ZQuiCn1FJwNPWneRTqvI1gEwUvKarBeqr48M+PpQvmtS8V1V/DSSJTCsp5EB/+9K3eyW6HGqhK3g4AiAD+e89zq4mftwFoD3AfgSgF+TQcJhhPMh3gPgiwhXUbjgV2V6spjD3SqMqhWqjQqwJ51iZFmGjqw0bRRQHcW56xq3HFooXNTCb+3GY9cUm74+kDbqMuAcyYZAYPi9XQuyRMG9M/1sWDSi++a890IAFwP4qCOZ7wng/fLvN+NggqQrTgHwppz3HgVwLfydpDgpUFAkHVPbyVkZD2XFdgLmx/KjFn7eAiKaX6A6bVCgwNgEMHXYytvOGRQsFN0GBSr8Tg1ykeb5eh4/CZTeiE2P5ClTiQcFy5G85aEr/VgJDjYAvLbgM9cA+HmYWR6YlwXCZZUnYG/5o641fG6B+zcBXAngax4VFHkqnZWsLObInnjUk9cgxakipzMZIAxkIZFV0E2RPYEqkqGf4eATKcumgzxKG5bZUfJmmVLxR5Oo+hkFXqTHdQ0QdJPVko5snkr952VZs69nDe/l9fUg5idBil92LTUGovcPclbcc+W3vLoKUvJxnOFz0UThfkr5OpDps+trFiYyPKrkxIsHWZqQGOefhBAPEUIcks+fJoR4sRDitgLvKDsh8bAQ4rMldHOlZxMPtzMmGVWZsDbImBi0a2gy3CBD57MKkyJ7KROiIiaWJyTuar5bdgJYnklbwsDkqaZOSPRBHhsTEmeWfN3mJMC0dHc039yTvtG1VC6WyfN+in72LU3k/P/LxkvfUTI4+GvLwcG/CiEuUoKC+HWGXCFgMzgoGzh9SQYWPgQGo4wZ+iYq7iDD0bYNrEZIK/D6BiuafUsVaVpwMNIEVR0HeSMqrjRhcOBPcDDxwNdHhnWxrQlwqsrRSylPqgQc3ZQyZNKk4OCIrMjK8tMWgoNPCCEeXaByPUsIsWUhODgkhPhYBd3c3YPAoG+xJVy0cCpbgXdSnM1UBRp37rTlXl3DwUHPUd4MMpY7BgwOGh0c9C1U2GX0XtbXZznK1N2KFXeesmpoqAzRYWtJsfFVAvcoMBExiSsMpuWTAJ4A4CKESyrvyPncd3CwrMVkeh4oJ16W5QIP5hnoVg1MLY2hp01yK7v0SDf5cCHHOE2P7y6kDS4zxupNMXSUN2nv7YDLHJtMkGKXW7CzQds45b2mlxmq/m5qU69+yhwDE2ndSpl/YAXTwcF5BiqDqkbwSQBPlAXyPxcICuLcCuD1Mj1/aEA311R8/qE1FxgDzUS7heXJdVuairVTwjEGmkk+KwAnYW9Xw7T3dw1WpPGd13Ys5800pdCqut8FqdfXA01+jy1+d6yZqFnG1/PUNSb9PUlfJneA3Enx+UYEB8cNvONlBe8/Rf75aaWn4IYKQUFSkPA6mflXyd/OLfiO8wA8tWI6HlxzS0JXgZ20/O1VSgVXtMAYphQUtmeEL1IK1qGhllEQa7VsOrCNcUohyN6DZvYaDDV+6GJLd12lbdKWpjC7DbhuVYHJMmWpSXNjggMTBym9ouB7VjJzHlaxpyBPkPAahEMnRQ31tQa+f16NBYauJbEFN8us5im9B90CMnQ0795xpEddRRotXzLJFtyd77BV0G5I83oNXNnTShNEBwZ7D0z3frhaajrXlIGNCA5M7FNwFMDzCtz/LQD/YDEoiHNLwcrkHAC/aeC759ZYYOgqrh2HaZgWTFve6H7sWJdjQ70gWYWIy7xJW3Ptw9bRpJqvL+F2/4ppQR8uaqumK/OlxfTG9XIi4bLChqcG+gYAfwbgf1vgbC839J6za0q/rnXu+sSwPJsp6dC1zOs47S462TCu0+h0xKWhQsQ1U00g0KshACPmfd0lK/nNvoXK1pYsy4RWfM+gT0ffcFbmHvbUSM8GcGkLnO0sg8HBHTXJ0Eup5Fyy0ETNecZBfej5yPNdE0MLq5rk0rXIeiBN7jVAjfaUFOR3LbzXVNCfxHZTjeGwx2m7zvP05WHToAz7NcnQ9axibYMM84Lp9KFlVOXbDBCa03OQFGwuakjLwpKPLB3bft6zFhgcFOB+AB7dYEc7CjNLIOvuOehoHGzVoLzQFXp17Vm/gH5Zo61CtckFOqkviF54ZktVK1lbPp827BmdLttvkjH43jJ/K4BDDXW0Z8PtgU626Dl0MJcyLGpO0yJnENOG4IAwOCjKylJwYJOTSD/EbBvhkddDNKAn4XADjPVBDXSyDeh3E2wDC8pQmbRCpKlyuZq1TeqvpH0KYHzSVdZmah1ZN+zLYGEATzcLa8KY/nUNdKhLEe6H0MaWhI8FRhNlsBUcEGLST0YIl6jXcTW10XEc+SZs9xFuU72HcNhh6FMg3YTg4Mmodl5DHTq9tiUFRkAZGsXcgzRwaIF+su6scLCSKm8jpCsDsZnsVZig5jkKTVkNcEWDDOOxAM6nf5A1LhgJYfAZ7u9xDOGqtSKBe7Qb5LYSKDgfTmlKcPACmO+mP4SDcxlMvvNt9F9SEz4MSXB+AWHweWeinQ2Py96EIgFOFCjsyl4FZ0HCRoMU/FKDPQj3B/B+2cJ/G4CrYWaM66EAHt4iR5y3QIZ16ubmfAVi2k/mnpUDTfbn6AjnMQ52bY1OUs3ju9GSyC042HW0ScFBpJDvVXzPKQA+DuCe8t+vB/ApAH9rII1vWZOCpEnr1leeyuDLzpMmCVIKRQZYzfSTObj9tS19T2N2FwULWXMNRvJ+q6euNmkHwg0Av27gPWcqgUHEJQbeez6AJ7bQiJcFKgHKUL0itRV01Bk0MjhoboDADazc9iqcxME8hbRekgEsH4netO2JXwfgSMV3fAfAR2K/XW8gbW9osdH6VAG1QQbdHvEmeg3qLMzbEBysM7Y25iLlehUuQjhXYZnSg2DN35sWHBwD8MsV3yEQLo98PcJ5B5cA+ETFd54L4LKWGqrNcwDqlqGuAKFXoHBuQ3CwaJBM69xSnmv0wWWO9ebJRSk+ZO1I9CYebPTHqL7K4PsIJzc+C8A/GkjTq9asNVFXxdpLuLoNk8F2cNCvqbWnOxa76DGzdbZeO2teEXKHS397EnQ9CAwOFO4H4Bc8Ss/ZAF7S8sh15dIoUyq9WcI1bJAMaZWoyaOW69g8RafLojKtamy9rnsluKPRfx32lOTr22ucNyvoJ4ZasdumHon8RvhzINOL1qTQSGpluSxMq87u39FU1K4DhIGmojN51LLrg12ClCCtqFx1DgGxhZycX657o/pI7iX0cY+DQJNWG/rS+YaVvGlqcPBwhHsK1M3pAF6zpgUGYHm2bI7WdpHKRxd1jxxWpJ0UnU0dVdYuA54lig+VLFIqDNt50wep29fT8trXZb5JvRw2Dt5bpvg7gwMFH84veB6qr55oArqNUHqOWt66ymdaoDWx1FTAAdydoDnRyDGH+c1dXB3i0k3R37ikra1qaL26rPy6DfT1Adz13ujmrux4qK8V3C0BdTqXqMnBwZMQ7nRYliMA7lrx+TYfy1yk5W3TaNMqnx1DMgwcBDmjlMLV1GYm8ZbFtuWKKJABj64HoGxvyE5KcGWrQnI5vBQ01Ne3Lac9MBxougyokiryvgU71fkag4MYV5d87rEAvoFwz4MdAHcp8Y5fAXDWGgUHc+jH7W0VGmmVzxTFuxmXCHfa1FU8tiqIYUrLdAvm9gGI944EsLcfe9a7tyq8e5pSOA4d2pitiqPbAF8fp+S5rQBBt26/SqDpgp0UeUzqqs/gID/PRPEDmY4gXL54tvz3MwA8p+A7TkE4KXLd2IS+C21muAehk1L5rCpUPuMUZ5pYqHwmKa2hhYUWUfyY2KhAN9kl3M0IDMaoNj68yChwTQVxQYLdmt6wSbc7p+/zG8aatGflfZUAbZBS7vjMjkZXHZjrXdYNE+pWmKx9cIAShflR/OQ8gQcWfMclAO67hsFBtN5WV2HsGiq4+/JdugLoZEWHOJHy/MhQoNPL0EeaLqvm0aamEjTRkhlmVA6Lir0GuiAnb8BVJH/2YnLYaKEuHLUqbdjRyYzGgIlAOnpXWmDQhMOWdDYfHb1cJa8HKfZur0dFCGHyer5wz+1CiDMLpvP62DvuX+DZQ0KIG2uQ80OG86rKNchI60wI0S/x3p58No2BIRm6Qoj9jG9NZJqK6iZLhn35/Srpn2n0Hv3/KOXbQyFEp8C3AvnMXoZcu/JeV3a2V8IeekKIbc37ulLOJMrKEKTYWZR+UzqbGU57Hj8pK0NX+leW//mki6xrkuHzRfUUpPixkHZsTZ5DQgiTscbzAbyrhqjt5Si2euEUAE9DeFjSXwH4QoFnLwbwsRpkvAF+Hew0yNH6iTb2WeBgWdtKac12ZQs977Glm4Yj5a6M6rO+u5Td5ElL84KYDFkthIWh1lDSUME81huRNY9ioci1TOgSjfayyLsL5QkLXZzDHL0EK6VrV7fDYjRBrJNhW7rvHbIsQ9pOkjs57V43fHTIgJ/Mcvh6tOpmkSBPT/H5PDY1rtgDZUsXWcMjWUMucVtV9RQvEwc1+Fureg6EEOKHQohTHbWa/6UmGX3qOVCj/z0Hsu+XaMEXic63HeXhtuVW4izhvqEDuSaGewyK9iBUZZBDX1VtbLdC+oYetJa7FWUomx9N6jlwVZ7sWvY3CCGMzzmoa9fCowhXD9jmQoQrHergNg/H2RYIDwWxucxoB8Bx2NsAJRpb3bQYhS/lN07C/S5vY5lHy4bqLhpXtaG7KP22Z8JH80uaMHae5etbFvM6OmRo2mA9RTZlS09z6z0GEtPBwZdrzJTrUP1ApiyuqVG+b3vsDFuyAp9acAJXFepUymDSqZey4jyOejdwWRiWTc1zV3JFQaKpQHTsOP0rB5Wry2BzasFPmh5A6fRkWkdO7Md0cPCFGjPj3rB7INN9AFxao3w3e+4MakW4VdLJF0qhfQLut0uNDjc5prQoVyX0MJXpNx0wmSiwjsl8KlMp7ih5PK6hklODkjL7Qyxjz69qzIOTOFjy2bRgQfX1sra0VCpQ3/zEtJ6OSXubV/Q5pzoyPSHxHADfrDEzPgPgwQCEhXe/G8Bv1CjbK9G8HRmjCTbqBJ3oAJVFLChYeFxIRpOEosls0d/VNCdNwmoC0UTQQJF1EauQl/B3X/tOLH86sbRHeTRvYN6gBbYUxGynqX5Sh55q9TnTwcFpAL6Ggw2G6uCinK3Wc2Q6Pw/gxxn3HgNwS80G1Qfwlyx/CCGE2Mb0sMKPUO/QApBvTPI5sofjswD+A+Hpimn8ngd5dRPNlRBCSBODg9tRf3fRkwBckPL/RwFcr/z7QgCXp9x/Jszs+FaVL9NcCSGENDE4AIBPeiDXVSn/d4omANDxAtS/zfQ+/F2tQAghhMFBJh/yQK7LANxL83/fB/Ba5d8/APB2zb2novzJjyb5ILLnRRBCCCHeBgc3eiLbK1P+70oAP4dwCOJe0E827CMchqibD9BUCSGEuML0agUg3CXxMyh+0qFp7kC4POQ7JZ/fAPBVAPf0IJ/uDeDrNFdC1oZoGXDdS3x9SQdpQc+BAPBeT2T77QrPP8WTwOCLqHfviLYzw8FxxsQdA0X3XarjTnQQHic9k3921jwdpCXBARCedOgDVyCcN1BGL2/yRIa3IewFaQI9hCfQqVff88K/h/wnD9pqmU1kAdzX/N5racs40n0AotJXdBLE7GId00FqYMPSe29CuLnQ+TXLdzqAZyPc3bAIj0H6ckiXvK8BAcEgR8ERHVU6Bneqi7ego6NZuzjYilb9vYNw+1SyHsS77xdrng7Sop6DOwBc64mMbygYBB3yKO0fBvANT22ng4Nu4TwtikBWdnsIu/DZWiQkmSkO9uIvuyd/m9JBasDGhMSIs+HPBJanAvj7nPc+BMCnPEn34wB8xNPWbryCn8rCYxHrGejioPtY7R6PjjGuuzUSOUB0CqRrAqnLDu58YJXu97YwxME8jzoO2SKE1BQcRBXGCzyQ83MIV0/kGbv/IIAne5DmrwI4D/7NNxggHAuPty7yBII9+Ww0scmHc+7rDg7WFQYHhHiM7Z3/rvREzgsAPDLHfR1PAgMgPM/Bt8CgFwsMNuWVt4dojjsfjBUA2AaHGAghxCs2LL//KwjPMXiuB7K+GcBjkX6c81We5MvN8GfFB5SKPB4YlDlfPOotiJawdWQLcrNEoNJNeLfpo3mjYRGV6AhjU8NmSbLojrFWjyXWrT3vKelclsjnbsnndXLY6BUwlf895dlFTA89RddjT9KV954+fnLpYTQpeGU4HSbswQe7dqFPV7qqjhDC9nWO8IcLGpLOZzjIl6LXUEnfyMD7ujGZOzmeCWQ69jP0NxNC9HKmQ31G/X0ghNjL+M62lKOM/IEQYpIhy768J9DkQy9DpmGJdPUKPp8nT/blPUXlqCv/k77hi12WSXucuE1VTUcZux55aNcu9OlKV5UvFwcKfQt+nGoIpJ+TcIUnafws/NsuOUA4RhxFy2MD71zgYAb0HNkrHvpIXukwT2iV9WTPxKTEkEWgPNuJtfySWhO7im7yEskyiKVvGZNFXeHh414RujxJkmMkddU1/C3T+T9DsdU0rtKV127VdMyVS2VQMS9M2PXQY7t2oU//deWo1XkXIcTXPGmV/1RC+s4SQtzuSfoe4WGvwcBwr0GV76e12DsJkf5ugZZRIO9XW7tJPRp9eX+89VBGlj35W5DQqlB7L/alzL70HLiQw3X+j2LfGMi09WpOV557JrF8gMZu92Kt0sBQz0Eb7NqFPl37TunLZQH/EE8q37cnpO01nqTtPR4GBpCFXkTX8be7SqG6Lx0yT3fdbs6ARi0QtmOBQh4nVwv8vig2lJK3kFMLqpEHhWg3JrctOVzm/55SaXc9s8use/aVtAcF0zAxEBy0xa5d6NOVrhoVHEAI8SpPKmE1w08TQtzmQZq+K4Q4w9PgQI1cXX97VqDyTXPaXoECoUj6+gVaDrMKBdwkls46C1FXcrjM/yItP5fpyhMcFE17ENN/UDE4aItdu9CnS9/xfs6BygjApz0YT1IPZHougCMepOmXAHzf0/E3dWasS9SNk6Y42Fo476qIrdgYX9YY4wrhxkxF2FFWbURzBLJkWZSYt7EpxyHrXvbpUg6X+R+tSFh5mC4YTHuUhqmhNLTFrl3os1G62nCs8Nulcuo+fvgPALxRpmfsgSG+CcCHPJ6YU5RByefiS3dUJyuzbDKaRNiV78paLjlFuWWQYyUo6Gtsqh+7v2yBNfFgEqIrOVzn/04JHbhIV953Fr1/WMHH22bXLvTZLF3V1E39BA+68S8TQjzFg3R8Qgix4elwQrw7blaiy7UIQ81wxl6F9I8y5ksIQ/MpZhndins5l8VlXXV3v7qUw3X+Fx1mc5GuvMMKZdJQdrlkG+3ahT5d6qrytVFTVHYDgMsBvLPGyPBdHkSnPwDwJAA/hr+U2cCmyPCDujmJbjijyqZGqwK9IIuKeoq6DLsJeutU0Gc8jXUe4exSDpf5Py+hA1d2CYt22yR7cMWCukJtwQEA/AmA+8ou/jo40wMj7MKfw6lMUmRfiyGy1+92Ea45ruKQNoKgIgGQyYKrrkK0Ljlc5H9Z//UhXas1swfbrKireoMDAHg1gFMRniOwbjwewH82JK3R+Khtg4xvGKM6Vq/Bed2GisC1HL7mf5vsknZNXXkbHAgAr0DYrT5cI6e6BMCHG5TehdK676PY7Ows+rHvJLXklyg38Sst+LAZ2Sfpz8dCxmc5XOd/XnxNV9vtoek0TlcbHihNIOyG/m+EhyO1mW8CeByAmxqW7jkOZuP3DAYHHSXoWKQUkkvYX1XSdeSwgcOCwWbA41IOF/lftlIfg7TJrtumq9Ic9khhbwHwiy12nr8DcLyBgQFkMBBV3AODxqn2Fk1TWmmu9hSvut47qXWZJEvZwqFoN3YZveVt0buQw3X+F+096IK0xa7bqqtWBAdRBdoB8PmWOdDzAVwK4HsNlkFtIZlYZ9tVeiOWGcFBFYeYyWu7YAVfNDDoKIFUWsEA6DdKMhW8LCsUolnPuJTDdf6j4emqs8Jrul23TVetCw4gA4OfRTuGGD4C4HwA7wZwR8NlmSrG3UO422VZgliAsZXSY5HUy5CXAQ52JVsVuL9KD8g8pyxlTovMq/NFycoryFH4uJTDdf6j4emqg7bYddt01crgAABuA/AyAI8B8OUGOsz/AHgWwhUJX2hRD8imUpgNS/YgdGSLqav0SOyktBTGSkAyLOhIQ03PR1qrpOhxuhPceUvUacr71W2WtwvKMpN/5pnYpAYoRQqTPEcVm5Ijz9JRl/lfBF/TVQdtseu26ao6Hu/MF11HhBCXi+bwaiHEmQ3Qq4lTEqODivLs0hUkHFs7EWZPslOPyN3NuaNa0pG9ezlkCpSDUNTjVLOe2YvprlNAllmB41rjJ8VlHSIziZ1OmKY3l3K4zP8ifuBDusqm3fQ32mLXLvTpUleNOpWxynW2rHh95SohxD1aHBTEA4TdmPy70mj70mCjayAddD92/6jg9/Zix+sOEyrjXqzCLnMk7Xbst4HynUB+Y5Qgz6BkcBWlsa8UEh3570lMv0GBgiH+nSSddRLOix/krLxcyeE6/+GpXfocHLTFrl3o07XvrEVwEF13E0K8WAjxdQ8Cgi8JIV4kAxes2ZXUE5CH3ZIGHZQ4s2FY0qFHBb6xV+JMhk5BWbaVFlKVSjWPHL0C+isqx6ykHK7z31e79Dk4aINduwoOXOqqMUc2m+DbAN6OcOvlx8Pshjx5+BGAPwdwsRw/fweAW7F+rOR46XE5oXCece8U4XHIF6HcVsUrACfktZPjW8crjOduye9MMyZHbcrvLEqMPZ6Qz+9kTGA6IfVWZuLaQup7C+l7SGzJ+2zLcaLCBDyX+d+GdNU1pt4Gu26TrkpzSAjRBqM8A8Aj5IzUZwC4t+H3f15OHvkAgBsB/BBER3wN7xL2doBz9a1eQuG0svyNuQN9rSwUnC7kqMPW2pCuOshrD0NlkuGJgnbjwq7boqu1Cw5UNgDcHcADADxSBg0PAnDXnM/fCuDTAHbldZM0tttZ7xNCiBUmOFj7fwztP2vBe11ttFBxPwbwDXndQDsihBDv6cRa/qRmXW1Qz4QQQiq2ZDuyojpZ4nl1U6M5deWHrg7TrgkhhFRgJSusPsptC6w+M6eu/NBVG+ccEEIIcUcHwJ5S+Z1A/gmBXRzs/LdCuJpjRV3Vryv2HBBCCKmCup10tM1vnrMP1MoOCJcerqgrP3TFngNCCCEmUGfRAweHtc1jFVlSt/oU4Zp/6soTXTE4IIQQYgp1DX5ettDejaEaqysGB4QQQkzSkRVfH/rTEFcId/8bY303iPJaVwwOCCGE2CLavTA6on0pK7s5VeO3rhgcEEIIIeROcLUCIYQQQhgcEEIIIYTBASGEEEIYHBBCCCGEwQEhhBBCGBwQQgghhMEBIYQQQhgcEEIIIcQV/wcWpyj4iRpzwQAAAABJRU5ErkJggg==" style="height:68px;max-width:280px;object-fit:contain" alt="cobutlers Gebaeudereinigung">'
     +'</div>'
@@ -1020,7 +1066,7 @@ function renderArch(mod){
       h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">';
       h+='<div class="status-row" style="margin-top:0">';
       STATUS_OPTS.forEach(function(st){
-        h+='<button class="status-chip'+(s.status===st?' on-'+st.toLowerCase():'')+'" onclick="event.stopPropagation();setStatus('+i+',\''+st+'\')">'+st+'</button>';
+        h+='<button class="status-chip'+(s.status===st?' on-'+st.toLowerCase():'')+'" aria-pressed="'+(s.status===st)+'" onclick="event.stopPropagation();setStatus('+i+',\''+st+'\')">'+st+'</button>';
       });
       h+='</div>';
       if(s.photos&&s.photos.length){
@@ -1030,15 +1076,15 @@ function renderArch(mod){
       h+='<div class="arch-bottom" style="margin-top:8px">';
       h+='<button class="arch-del" onclick="event.stopPropagation();addPhoto('+i+')">+ Foto</button>';
       h+='<button class="arch-del" onclick="event.stopPropagation();sendArchivMail('+i+')" style="color:var(--gd);border-color:var(--gd)">&#9993; Mail</button>';
-      h+='<button class="arch-del" onclick="event.stopPropagation();delSaved('+i+')">&#x2715;</button>';
+      h+='<button class="arch-del" onclick="event.stopPropagation();delSaved('+i+')" aria-label="Kalkulation l&ouml;schen">&#x2715;</button>';
       h+='</div>';
       // Photo thumbs
       if(s.photos&&s.photos.length){
         h+='<div class="photo-grid" style="margin-top:8px">';
         s.photos.forEach(function(p,pi){
           h+='<div class="photo-thumb" onclick="event.stopPropagation()">'
-            +'<img src="'+p+'">'
-            +'<button class="photo-del" onclick="event.stopPropagation();delPhoto('+i+','+pi+')">&#x2715;</button>'
+            +'<img src="'+p+'" alt="Foto '+(pi+1)+' zu '+(s.name||'Kalkulation').replace(/"/g,'')+'">'
+            +'<button class="photo-del" onclick="event.stopPropagation();delPhoto('+i+','+pi+')" aria-label="Foto l&ouml;schen">&#x2715;</button>'
             +'</div>';
         });
         h+='</div>';
@@ -1107,7 +1153,7 @@ function uS0(){
   h+=inp('Ansprechpartner','text','u_fap',U.fap,'Vor- und Nachname');
   h+='</div>';
   h+='<div class="sec">Objektart</div><div class="card"><div class="chips">';
-  ARTEN.forEach(function(a){h+='<button class="chip'+(U.oa===a[0]?' on':'')+'" onclick="U.oa=\''+a[0]+'\';render()">'+a[1]+'</button>';});
+  ARTEN.forEach(function(a){h+='<button class="chip'+(U.oa===a[0]?' on':'')+'" aria-pressed="'+(U.oa===a[0])+'" onclick="U.oa=\''+a[0]+'\';render()">'+a[1]+'</button>';});
   h+='</div></div>';
   h+='<div class="sec">Zugang</div><div class="card">';
   h+=trow('Schluessel','u_zs',U.zs,'U.zs=this.checked');
@@ -1120,10 +1166,10 @@ function uS0(){
 }
 function uS1(){
   var h='<div class="pg"><div class="sec">Reinigungsintervall</div><div class="card"><div class="chips">';
-  TURN.forEach(function(t){h+='<button class="chip'+(U.turnus===t[0]?' on':'')+'" onclick="U.turnus=\''+t[0]+'\';render()">'+t[1]+'</button>';});
+  TURN.forEach(function(t){h+='<button class="chip'+(U.turnus===t[0]?' on':'')+'" aria-pressed="'+(U.turnus===t[0])+'" onclick="U.turnus=\''+t[0]+'\';render()">'+t[1]+'</button>';});
   h+='</div></div>';
   h+='<div class="sec">Reinigungstage</div><div class="card"><div class="days">';
-  DAYS.forEach(function(d,i){h+='<button class="day'+(U.tage.indexOf(i)>=0?' on':'')+'" onclick="uTD('+i+')">'+d+'</button>';});
+  DAYS.forEach(function(d,i){var on=U.tage.indexOf(i)>=0;h+='<button class="day'+(on?' on':'')+'" aria-pressed="'+on+'" aria-label="'+d+'" onclick="uTD('+i+')">'+d+'</button>';});
   h+='</div></div>';
   h+='<div class="sec">Uhrzeit &amp; Flaeche</div><div class="card">';
   h+=inp('Reinigung ab','time','u_uhr',U.uhr,'');
@@ -1217,7 +1263,7 @@ function uS4(){
     +'<div class="pbox-s">Basic · / Monat · '+stdR.toFixed(2)+' Std./Reinigung</div>'
     +'<div class="slider-wrap"><div class="slider-lbl">Alle Pakete anpassen</div>'
     +'<div class="slider-row"><span class="slider-min">-30%</span>'
-    +'<input type="range" class="slider" id="sl_unt" min="70" max="130" value="'+(liveAdj.unt*100)+'" oninput="adjP(\'unt\',this.value)">'
+    +'<input type="range" class="slider" id="sl_unt" min="70" max="130" value="'+(liveAdj.unt*100)+'" oninput="adjP(\'unt\',this.value)" aria-label="Verhandlungsregler, Preis in Prozent (70 bis 130)">'
     +'<span class="slider-max">+30%</span></div>'
     +'<div class="slider-info">'
     +'<div class="sinfo-item">Anpassung<span class="sinfo-val" id="adj_unt">'+((liveAdj.unt-1)*100>=0?'+':'')+((liveAdj.unt-1)*100).toFixed(0)+'%</span></div>'
@@ -1306,11 +1352,11 @@ function bS1(){
   h+='<div style="font-size:24px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="bauTotM2">'+totalM2.toFixed(0)+' m&#178;</div>';
   h+='</div>';
   h+='<div class="sec">Reinigungsart</div><div class="card"><div class="type-row">'
-    +'<button class="topt'+(B.art==='quick'?' on':'')+'" onclick="B.art=\'quick\';render()">Quick</button>'
-    +'<button class="topt'+(B.art==='fein'?' on':'')+'" onclick="B.art=\'fein\';render()">Fein</button>'
+    +'<button class="topt'+(B.art==='quick'?' on':'')+'" aria-pressed="'+(B.art==='quick')+'" onclick="B.art=\'quick\';render()">Quick</button>'
+    +'<button class="topt'+(B.art==='fein'?' on':'')+'" aria-pressed="'+(B.art==='fein')+'" onclick="B.art=\'fein\';render()">Fein</button>'
     +'</div></div>';
   h+='<div class="sec">Verschmutzungsgrad</div><div class="card"><div class="chips">';
-  SCHMUTZ.forEach(function(s){h+='<button class="chip'+(B.schmutz===s[0]?' on':'')+'" onclick="B.schmutz=\''+s[0]+'\';render()">'+s[1]+'</button>';});
+  SCHMUTZ.forEach(function(s){h+='<button class="chip'+(B.schmutz===s[0]?' on':'')+'" aria-pressed="'+(B.schmutz===s[0])+'" onclick="B.schmutz=\''+s[0]+'\';render()">'+s[1]+'</button>';});
   h+='</div></div>';
   h+='<div class="sec">Besonderheiten</div><div class="card">';
   h+=trow('Klebstoffreste','b_kl',B.klebe,'B.klebe=this.checked');
@@ -1410,30 +1456,15 @@ function bS2(){
     +'<div class="pbox-s">netto &middot; '+c.pricePerM2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>'
     +'<div class="slider-wrap"><div class="slider-lbl">Verhandlungsregler</div>'
     +'<div class="slider-row"><span class="slider-min">-30%</span>'
-    +'<input type="range" class="slider" id="sl_bau" min="70" max="130" value="'+(liveAdj.bau*100)+'" oninput="adjP(\'bau\',this.value)">'
+    +'<input type="range" class="slider" id="sl_bau" min="70" max="130" value="'+(liveAdj.bau*100)+'" oninput="adjP(\'bau\',this.value)" aria-label="Verhandlungsregler, Preis in Prozent (70 bis 130)">'
     +'<span class="slider-max">+30%</span></div>'
     +'<div class="slider-info">'
     +'<div class="sinfo-item">Anpassung<span class="sinfo-val" id="adj_bau">'+((liveAdj.bau-1)*100>=0?'+':'')+((liveAdj.bau-1)*100).toFixed(0)+'%</span></div>'
     +'<div class="sinfo-item">Marge<span class="sinfo-val '+mc+'" id="marg_bau">'+liveM+'%</span></div>'
     +'<div class="sinfo-item">Gewinn<span class="sinfo-val '+mc+'" id="gew_bau">'+fmt(liveG)+'</span></div>'
     +'</div></div></div>';
-  if(c.ueVariante){
-    var ue=c.ueVariante;
-    var stdStr=ue.ueStdProMA>=1?(Math.floor(ue.ueStdProMA)+'h '+(Math.round((ue.ueStdProMA%1)*60))+'min'):(Math.round(ue.ueStdProMA*60)+' Min');
-    var gwO=startPreis-kosten;
-    h+='<div class="sec">Vergleich: Normal vs. Ueberstunden</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
-    h+=ueCol('NORMAL',c.tage,fmtTage(c.tageExakt,C.stdTag),c.lohn,c.fahrt,kosten,gwO,false);
-    h+=ueCol('MIT UE',ue.tage,'+'+stdStr+' pro MA',ue.lohn,ue.fahrt,ue.kosten,ue.gewinn,true);
-    h+='</div>';
-    var mG=ue.gewinn-gwO;
-    h+='<div style="background:linear-gradient(135deg,var(--gd),#2d6e4e);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">'
-      +'<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Vorteil Ueberstunden</div>'
-      +'<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">1 Tag weniger &middot; Fahrt gespart: '+fmt(ue.fahrtErsparnis)+'</div></div>'
-      +'<div style="text-align:right"><div style="font-size:11px;color:rgba(255,255,255,.7)">Mehr Gewinn</div>'
-      +'<div style="font-size:22px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff">+'+fmt(mG)+'</div></div>'
-      +'</div>';
-  }
+  var svB=ueSaving(c.tageExakt,B.fahrtMin,B.ma);
+  if(svB)h+=ueTip(svB);
   h+=copyBox('bau');
   h+='<div class="sec">Speichern &amp; Senden</div>';
   h+='<div class="card"><div style="display:flex;gap:8px">'
@@ -1577,8 +1608,8 @@ function fS1(){
     var seite=g.seite||'beidseitig';
     h+='<div class="fld" style="margin-bottom:10px"><label class="flbl">Reinigung</label>';
     h+='<div class="type-row">';
-    h+='<button class="topt'+(seite==='einfach'?' on':'')+'" onclick="updF('+i+',\'seite\',\'einfach\');render()">Einfach (nur aussen)</button>';
-    h+='<button class="topt'+(seite==='beidseitig'?' on':'')+'" onclick="updF('+i+',\'seite\',\'beidseitig\');render()">Beidseitig</button>';
+    h+='<button class="topt'+(seite==='einfach'?' on':'')+'" aria-pressed="'+(seite==='einfach')+'" onclick="updF('+i+',\'seite\',\'einfach\');render()">Einfach (nur aussen)</button>';
+    h+='<button class="topt'+(seite==='beidseitig'?' on':'')+'" aria-pressed="'+(seite==='beidseitig')+'" onclick="updF('+i+',\'seite\',\'beidseitig\');render()">Beidseitig</button>';
     h+='</div></div>';
     // Masse: 2 Spalten (Breite+Hoehe) dann Anzahl darunter
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">';
@@ -1692,34 +1723,42 @@ function fS2(){
   h+='</div>';
   h+='</div>';
 
-  // ANGEBOTSPREIS VERGLEICH – zwei Kästen
+  // ANGEBOTSPREIS VERGLEICH – zwei Spalten, jede mit eigenem Ueberstunden-Hinweis
+  var svF=ueSaving(cf.tageExakt,F.fahrtMin,F.ma);
+  var svQ=ueSaving(cq.tageExakt,F.fahrtMin,F.ma);
   h+='<div class="sec">Angebotspreis Vergleich</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;align-items:start">';
 
-  // FEIN Kasten
+  // FEIN Spalte
   var livePF=cf.preis*liveAdj.fen;
   var liveKF=cf.lohn+cf.fahrt+livePF*(C.mat/100);
   var liveGF=livePF-liveKF;
   var liveMF=(liveGF/livePF*100).toFixed(1);
+  h+='<div>';
   h+='<div style="background:linear-gradient(135deg,#4a9270,#2d6e4e);border-radius:14px;padding:14px;text-align:center">';
-  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:6px">FEIN</div>';
-  h+='<div style="font-size:28px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="liveP_fen">'+fmt(livePF)+'</div>';
-  h+='<div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:3px">'+cf.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.85);margin-bottom:6px">FEIN</div>';
+  h+='<div style="font-size:clamp(22px,6.5vw,28px);font-weight:700;font-family:\'DM Mono\',monospace;color:#fff;overflow-wrap:anywhere" id="liveP_fen">'+fmt(livePF)+'</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">'+cf.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
   h+='<div style="background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff;display:inline-block;margin-top:8px">Marge: <span id="marg_fen">'+liveMF+'%</span></div>';
-  h+='<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px">Gewinn: <span id="gew_fen">'+fmt(liveGF)+'</span></div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:4px">Gewinn: <span id="gew_fen">'+fmt(liveGF)+'</span></div>';
+  h+='</div>';
+  h+=ueTip(svF)||'<div class="ue-none">keine &Uuml;berstd.-Ersparnis</div>';
   h+='</div>';
 
-  // QUICK Kasten
+  // QUICK Spalte
   var preisQuickLive=cf.preis*0.72*liveAdj.fen;
   var liveKQ=cq.lohn+cq.fahrt+preisQuickLive*(C.mat/100);
   var liveGQ=preisQuickLive-liveKQ;
   var liveMQ=(liveGQ/preisQuickLive*100).toFixed(1);
+  h+='<div>';
   h+='<div style="background:linear-gradient(135deg,#243044,#1a2332);border-radius:14px;padding:14px;text-align:center;border:1.5px solid var(--n2)">';
-  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl);margin-bottom:6px">QUICK <span style="font-size:9px;color:var(--g400)">(-28%)</span></div>';
-  h+='<div style="font-size:28px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff" id="liveP_fen_quick">'+fmt(preisQuickLive)+'</div>';
-  h+='<div style="font-size:11px;color:var(--g400);margin-top:3px">'+cq.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl);margin-bottom:6px">QUICK <span style="font-size:9px;color:rgba(255,255,255,.6)">(-28%)</span></div>';
+  h+='<div style="font-size:clamp(22px,6.5vw,28px);font-weight:700;font-family:\'DM Mono\',monospace;color:#fff;overflow-wrap:anywhere" id="liveP_fen_quick">'+fmt(preisQuickLive)+'</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">'+cq.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
   h+='<div id="marg_fen_quick" style="background:rgba(139,196,168,.15);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--gl);display:inline-block;margin-top:8px">Marge: '+liveMQ+'%</div>';
-  h+='<div id="gew_fen_quick" style="font-size:11px;color:var(--g400);margin-top:4px">Gewinn: '+fmt(liveGQ)+'</div>';
+  h+='<div id="gew_fen_quick" style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px">Gewinn: '+fmt(liveGQ)+'</div>';
+  h+='</div>';
+  h+=ueTip(svQ)||'<div class="ue-none">keine &Uuml;berstd.-Ersparnis</div>';
   h+='</div>';
   h+='</div>';
 
@@ -1733,32 +1772,13 @@ function fS2(){
     +'</div>';
   h+='<div class="slider-wrap" style="margin-top:0;padding-top:10px;border-top:none">';
   h+='<div class="slider-row"><span class="slider-min">-30%</span>'
-    +'<input type="range" class="slider" id="sl_fen" min="70" max="130" value="'+(liveAdj.fen*100)+'" oninput="adjP(\'fen\',this.value)">'
+    +'<input type="range" class="slider" id="sl_fen" min="70" max="130" value="'+(liveAdj.fen*100)+'" oninput="adjP(\'fen\',this.value)" aria-label="Verhandlungsregler Fein- und Quickpreis in Prozent (70 bis 130)">'
     +'<span class="slider-max">+30%</span></div>';
   h+='<div class="slider-info">';
   h+='<div class="sinfo-item">Anpassung<span class="sinfo-val" id="adj_fen">'+((liveAdj.fen-1)*100>=0?'+':'')+((liveAdj.fen-1)*100).toFixed(0)+'%</span></div>';
   h+='<div class="sinfo-item">Fein Marge<span class="sinfo-val" id="marg_fen2">'+liveMF+'%</span></div>';
   h+='<div class="sinfo-item">Fein Gewinn<span class="sinfo-val" id="gew_fen2">'+fmt(liveGF)+'</span></div>';
   h+='</div></div></div>';
-
-  // UE Variante
-  if(c.ueVariante){
-    var ue=c.ueVariante;
-    var stdStr=ue.ueStdProMA>=1?(Math.floor(ue.ueStdProMA)+'h '+(Math.round((ue.ueStdProMA%1)*60))+'min'):(Math.round(ue.ueStdProMA*60)+' Min');
-    var gwO=cf.preis-cf.kosten;
-    h+='<div class="sec">Vergleich: Normal vs. Ueberstunden</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
-    h+=ueCol('NORMAL',cf.tage,fmtTage(cf.tageExakt,C.stdTag),cf.lohn,cf.fahrt,cf.kosten,gwO,false);
-    h+=ueCol('MIT UE',ue.tage,'+'+stdStr+' pro MA',ue.lohn,ue.fahrt,ue.kosten,ue.gewinn,true);
-    h+='</div>';
-    var mG=ue.gewinn-gwO;
-    h+='<div style="background:linear-gradient(135deg,var(--gd),#2d6e4e);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">'
-      +'<div><div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.7)">Vorteil Ueberstunden</div>'
-      +'<div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">1 Tag weniger &middot; Fahrt gespart: '+fmt(ue.fahrtErsparnis)+'</div></div>'
-      +'<div style="text-align:right"><div style="font-size:11px;color:rgba(255,255,255,.7)">Mehr Gewinn</div>'
-      +'<div style="font-size:22px;font-weight:700;font-family:\'DM Mono\',monospace;color:#fff">+'+fmt(mG)+'</div></div>'
-      +'</div>';
-  }
 
   h+=copyBox('fen');
   h+='<div class="sec">Speichern &amp; Senden</div>';
@@ -1768,23 +1788,6 @@ function fS2(){
     +'</div></div>';
   h+='<div class="nav"><button class="btn-back" onclick="fenStep=1;render()">&#8592;</button><button class="btn-next" onclick="resetF(false)">+ Neue</button></div></div>';
   return h;
-}
-
-// UE comparison columns helper
-function ueCol(title,tage,sub,lohn,fahrt,kosten,gewinn,highlight){
-  var bg=highlight?'var(--gd)':'var(--navy)';
-  var dim=highlight?'rgba(255,255,255,.7)':'var(--g400)';
-  var white='#fff';
-  return '<div style="background:'+bg+';border-radius:14px;padding:14px;color:#fff">'
-    +'<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:'+dim+';margin-bottom:8px">'+title+'</div>'
-    +'<div style="font-size:22px;font-weight:700;font-family:\'DM Mono\',monospace;margin-bottom:2px">'+tage+(tage===1?' Tag':' Tage')+'</div>'
-    +'<div style="font-size:11px;color:'+dim+';margin-bottom:10px">'+sub+'</div>'
-    +'<div style="border-top:1px solid rgba(255,255,255,.15);padding-top:8px">'
-    +'<div style="font-size:10px;color:'+dim+';margin-bottom:2px">Lohn</div><div style="font-size:13px;font-family:\'DM Mono\',monospace">'+fmt(lohn)+'</div>'
-    +'<div style="font-size:10px;color:'+dim+';margin-top:6px;margin-bottom:2px">Fahrt</div><div style="font-size:13px;font-family:\'DM Mono\',monospace">'+fmt(fahrt)+'</div>'
-    +'<div style="font-size:10px;color:'+dim+';margin-top:6px;margin-bottom:2px">Gesamtkosten</div><div style="font-size:15px;font-weight:700;font-family:\'DM Mono\',monospace">'+fmt(kosten)+'</div>'
-    +'<div style="font-size:10px;color:'+dim+';margin-top:6px;margin-bottom:2px">Gewinn</div><div style="font-size:15px;font-weight:700;font-family:\'DM Mono\',monospace">'+fmt(gewinn)+'</div>'
-    +'</div></div>';
 }
 
 // ============================================================
