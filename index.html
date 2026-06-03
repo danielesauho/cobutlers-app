@@ -312,7 +312,8 @@ input[type=file]#photoInput{display:none}
     <div class="pt-sub">Produktivitaet</div>
     <div class="sr"><div><div class="sl">Bau: m2/Tag pro MA</div><div class="ss">Nettoleistung</div></div><input class="si" type="number" id="s5" step="5"></div>
     <div class="sr"><div><div class="sl">Fenster: m2/Std. pro MA</div><div class="ss">Beidseitig Quick</div></div><input class="si" type="number" id="s6" step="1"></div>
-    <div class="sr"><div><div class="sl">Arbeitsstunden/Tag</div><div class="ss">Netto ohne Fahrt</div></div><input class="si" type="number" id="s7" step="0.5"></div>
+    <div class="sr"><div><div class="sl">Arbeitsstunden/Tag</div><div class="ss">Produktiv, netto ohne Fahrt</div></div><input class="si" type="number" id="s7" step="0.5"></div>
+    <div class="sr"><div><div class="sl">Bezahlte Stunden/Tag</div><div class="ss">Lohnkosten pro voller Tag</div></div><input class="si" type="number" id="s9" step="0.5"></div>
     <div class="sr"><div><div class="sl">Max. Ueberstunden/Tag</div><div class="ss">Pro MA (Bau &amp; Fenster)</div></div><input class="si" type="number" id="s8" step="0.5"></div>
     <button class="save-btn" onclick="saveSettings()">Speichern</button>
     <button class="reset-btn" onclick="resetDef()">Standardwerte wiederherstellen</button>
@@ -535,7 +536,7 @@ SB.auth.getSession().then(function(result){
   }
 });
 
-var C={untR:20.25,bauR:22.95,mat:3,bauM2:140,fenM2h:40,stdTag:7,maxUeStd:2,
+var C={untR:20.25,bauR:22.95,mat:3,bauM2:140,fenM2h:40,stdTag:7,zahlStd:8,maxUeStd:2,
   firmName:'cobutlers Gebaeudereinigung',firmStr:'Ortenburgerring 13',
   firmPlz:'84140 Gangkofen',firmTel:'+49 8722 9664451',firmEmail:'info@cobutlers.de'};
 
@@ -1243,7 +1244,7 @@ function calcB(){
   var effM2Tag=C.bauM2*B.ma*vf;
   var tageExakt=m2/effM2Tag;
   var tage=Math.ceil(tageExakt);
-  var stdVoll=tage*C.stdTag*B.ma;
+  var stdVoll=tage*C.zahlStd*B.ma; // bezahlte Stunden (volle Tage)
   var lohn=stdVoll*C.bauR;
   var fahrt=tage*calcFahrt(B.fahrtMin,B.ma,C.bauR);
   var pq=m2<=300?3.25:m2<=1000?2.50:1.50;
@@ -1257,7 +1258,7 @@ function calcB(){
     var tm1=tage-1;
     var ueStdProMA=(tageExakt-tm1)*C.stdTag;
     if(ueStdProMA<=C.maxUeStd&&ueStdProMA>0){
-      var ueL=(tm1*C.stdTag*B.ma+ueStdProMA*B.ma)*C.bauR;
+      var ueL=(tm1*C.zahlStd*B.ma+ueStdProMA*B.ma)*C.bauR; // volle Tage bezahlt + echte Ueberstunden
       var ueF=tm1*calcFahrt(B.fahrtMin,B.ma,C.bauR);
       var ueK=ueL+ueF+preisInkl*(C.mat/100);
       var ueG=preisInkl-ueK;
@@ -1380,7 +1381,7 @@ function bS2(){
     +rb('Meine Kosten',fmt(kosten),'','rd')
     +'</div>'
     +'<div class="bk"><div class="bk-t">Kostenaufschluesselung</div>'
-    +bkrow('Lohn ('+c.stdVoll.toFixed(0)+' Std. / '+c.tage+' volle Tage)',fmt(c.lohn))
+    +bkrow('Lohn ('+c.tage+' volle Tage x '+C.zahlStd+'h bez. x '+B.ma+'MA = '+c.stdVoll.toFixed(0)+'h)',fmt(c.lohn))
     +bkrow('Fahrt Rueckfahrt ('+B.fahrtMin+'min x '+B.ma+'MA x '+c.tage+' T.)',fmt(c.fahrt))
     +bkrow('Material ('+C.mat+'%)',fmt(startPreis*(C.mat/100)))
     +(B.extraOn&&c.extra>0?'<div class="bkr"><span class="bkl" style="color:#ffb866">Aufschlag Besonderheiten ('+(c.extra*100).toFixed(0)+'%)</span><span class="bkv" style="color:#ffb866">+'+fmt(c.extraKosten)+'</span></div>':'')
@@ -1494,7 +1495,7 @@ function calcF(){
   // FEIN Kalkulation
   var tageExaktFein=totalStdFein/(C.stdTag*F.ma);
   var tageFein=Math.ceil(tageExaktFein);
-  var stdVollFein=tageFein*C.stdTag*F.ma;
+  var stdVollFein=tageFein*C.zahlStd*F.ma; // bezahlte Stunden (volle Tage)
   var lohnFein=stdVollFein*C.bauR;
   var fahrtFein=tageFein*calcFahrt(F.fahrtMin,F.ma,C.bauR);
   var pf=totalM2beid<=300?2.50:totalM2beid<=1000?2.25:2.00;
@@ -1506,7 +1507,7 @@ function calcF(){
   // QUICK Kalkulation
   var tageExaktQuick=totalStdQuick/(C.stdTag*F.ma);
   var tageQuick=Math.ceil(tageExaktQuick);
-  var stdVollQuick=tageQuick*C.stdTag*F.ma;
+  var stdVollQuick=tageQuick*C.zahlStd*F.ma; // bezahlte Stunden (volle Tage)
   var lohnQuick=stdVollQuick*C.bauR;
   var fahrtQuick=tageQuick*calcFahrt(F.fahrtMin,F.ma,C.bauR);
   var pq=totalM2beid<=300?1.80:totalM2beid<=1000?1.65:1.45;
@@ -1521,7 +1522,7 @@ function calcF(){
     var tm1=tageFein-1;
     var ueStdProMA=(tageExaktFein-tm1)*C.stdTag;
     if(ueStdProMA<=C.maxUeStd&&ueStdProMA>0){
-      var ueL=(tm1*C.stdTag*F.ma+ueStdProMA*F.ma)*C.bauR;
+      var ueL=(tm1*C.zahlStd*F.ma+ueStdProMA*F.ma)*C.bauR; // volle Tage bezahlt + echte Ueberstunden
       var ueF2=tm1*calcFahrt(F.fahrtMin,F.ma,C.bauR);
       var ueK=ueL+ueF2+preisFein*(C.mat/100);
       var ueG=preisFein-ueK;
@@ -1856,6 +1857,7 @@ function openSettings(){
   document.getElementById('s1').value=C.untR;document.getElementById('s2').value=C.bauR;
   document.getElementById('s4').value=C.mat;document.getElementById('s5').value=C.bauM2;
   document.getElementById('s6').value=C.fenM2h;document.getElementById('s7').value=C.stdTag;
+  document.getElementById('s9').value=C.zahlStd;
   document.getElementById('s8').value=C.maxUeStd;
   document.getElementById('sf_n').value=C.firmName;document.getElementById('sf_str').value=C.firmStr;
   document.getElementById('sf_plz').value=C.firmPlz;document.getElementById('sf_tel').value=C.firmTel;
@@ -1869,6 +1871,7 @@ function saveSettings(){
   C.bauM2=parseFloat(document.getElementById('s5').value)||C.bauM2;
   C.fenM2h=parseFloat(document.getElementById('s6').value)||C.fenM2h;
   C.stdTag=parseFloat(document.getElementById('s7').value)||C.stdTag;
+  C.zahlStd=parseFloat(document.getElementById('s9').value)||C.zahlStd;
   C.maxUeStd=parseFloat(document.getElementById('s8').value)||C.maxUeStd;
   C.firmName=gv('sf_n')||C.firmName;C.firmStr=gv('sf_str')||C.firmStr;
   C.firmPlz=gv('sf_plz')||C.firmPlz;C.firmTel=gv('sf_tel')||C.firmTel;
@@ -1879,7 +1882,7 @@ function saveSettings(){
 }
 function resetDef(){
   if(!confirm('Standardwerte wiederherstellen?'))return;
-  C.untR=20.25;C.bauR=22.95;C.mat=3;C.bauM2=140;C.fenM2h=40;C.stdTag=7;C.maxUeStd=2;
+  C.untR=20.25;C.bauR=22.95;C.mat=3;C.bauM2=140;C.fenM2h=40;C.stdTag=7;C.zahlStd=8;C.maxUeStd=2;
   try{localStorage.removeItem('cb_cfg');}catch(e){}
   document.getElementById('ov').className='ov';
   showToast('Standardwerte wiederhergestellt!');
