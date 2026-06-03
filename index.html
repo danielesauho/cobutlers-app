@@ -1242,7 +1242,7 @@ function uS4(){
   [{n:'Quick',id:'quick',r:23},{n:'Basic',id:'basic',r:29},{n:'Premium',id:'premium',r:35}].forEach(function(p){
     var u=p.r*stdMo*liveAdj.unt,k=lohnMo+u*(C.mat/100),g=u-k,mg=(g/u*100).toFixed(1);
     h+='<div class="pkg-row"><div><div class="pkg-n">'+p.n+' · '+p.r+' €/Std.</div>'
-      +'<div class="pkg-d" id="pkg_d_unt_'+p.id+'">Marge: '+mg+'% · Gewinn: '+fmt(g)+'/Mo.</div></div>'
+      +'<div class="pkg-d" id="pkg_d_unt_'+p.id+'">Marge: '+mg+'% · '+fmt(g/einsMo)+'/Reinig. · '+fmt(g)+'/Mo.</div></div>'
       +'<div><div class="pkg-a" id="pkg_a_unt_'+p.id+'">'+fmt(u)+'</div><div class="pkg-m">/ Monat</div></div></div>';
   });
   h+='</div>';
@@ -1425,6 +1425,8 @@ function bS2(){
     +rb('Basispreis',fmt(c.basePreis),'exakt lt. Preisblatt')
     +rb('Einsatztage',c.tage+(c.tage===1?' Tag':' Tage'),fmtTage(c.tageExakt,C.stdTag)+' &middot; '+B.ma+' MA')
     +rb('Meine Kosten',fmt(kosten),'','rd')
+    +rb('Gewinn/Auftrag',fmt(gewinn),'Listenpreis','gr')
+    +rb('Gewinn/Tag','<span id="gwT_bau">'+fmt(gewinn/c.tage)+'</span>',c.tage+(c.tage===1?' Tag':' Tage'),'gr')
     +'</div>'
     +'<div class="bk"><div class="bk-t">Kostenaufschluesselung</div>'
     +bkrow('Lohn ('+c.tage+' volle Tage x '+C.zahlStd+'h bez. x '+B.ma+'MA = '+c.stdVoll.toFixed(0)+'h)',fmt(c.lohn))
@@ -1727,20 +1729,21 @@ function fS2(){
   var svF=ueSaving(cf.tageExakt,F.fahrtMin,F.ma);
   var svQ=ueSaving(cq.tageExakt,F.fahrtMin,F.ma);
   h+='<div class="sec">Angebotspreis Vergleich</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;align-items:start">';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">';
 
   // FEIN Spalte
   var livePF=cf.preis*liveAdj.fen;
   var liveKF=cf.lohn+cf.fahrt+livePF*(C.mat/100);
   var liveGF=livePF-liveKF;
   var liveMF=(liveGF/livePF*100).toFixed(1);
-  h+='<div>';
-  h+='<div style="background:linear-gradient(135deg,#4a9270,#2d6e4e);border-radius:14px;padding:14px;text-align:center">';
+  h+='<div style="display:flex;flex-direction:column">';
+  h+='<div style="background:linear-gradient(135deg,#4a9270,#2d6e4e);border-radius:14px;padding:14px;text-align:center;flex:1">';
   h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.85);margin-bottom:6px">FEIN</div>';
   h+='<div style="font-size:clamp(22px,6.5vw,28px);font-weight:700;font-family:\'DM Mono\',monospace;color:#fff;overflow-wrap:anywhere" id="liveP_fen">'+fmt(livePF)+'</div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">'+cf.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
   h+='<div style="background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#fff;display:inline-block;margin-top:8px">Marge: <span id="marg_fen">'+liveMF+'%</span></div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.85);margin-top:4px">Gewinn: <span id="gew_fen">'+fmt(liveGF)+'</span></div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:3px">Gewinn/Tag: <span id="gwT_fen">'+fmt(liveGF/cf.tage)+'</span></div>';
   h+='</div>';
   h+=ueTip(svF)||'<div class="ue-none">keine &Uuml;berstd.-Ersparnis</div>';
   h+='</div>';
@@ -1750,13 +1753,14 @@ function fS2(){
   var liveKQ=cq.lohn+cq.fahrt+preisQuickLive*(C.mat/100);
   var liveGQ=preisQuickLive-liveKQ;
   var liveMQ=(liveGQ/preisQuickLive*100).toFixed(1);
-  h+='<div>';
-  h+='<div style="background:linear-gradient(135deg,#243044,#1a2332);border-radius:14px;padding:14px;text-align:center;border:1.5px solid var(--n2)">';
+  h+='<div style="display:flex;flex-direction:column">';
+  h+='<div style="background:linear-gradient(135deg,#243044,#1a2332);border-radius:14px;padding:14px;text-align:center;border:1.5px solid var(--n2);flex:1">';
   h+='<div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gl);margin-bottom:6px">QUICK <span style="font-size:9px;color:rgba(255,255,255,.6)">(-28%)</span></div>';
   h+='<div style="font-size:clamp(22px,6.5vw,28px);font-weight:700;font-family:\'DM Mono\',monospace;color:#fff;overflow-wrap:anywhere" id="liveP_fen_quick">'+fmt(preisQuickLive)+'</div>';
   h+='<div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:3px">'+cq.ppm2.toFixed(2).replace('.',',')+' &#8364;/m&#178;</div>';
   h+='<div id="marg_fen_quick" style="background:rgba(139,196,168,.15);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--gl);display:inline-block;margin-top:8px">Marge: '+liveMQ+'%</div>';
   h+='<div id="gew_fen_quick" style="font-size:11px;color:rgba(255,255,255,.7);margin-top:4px">Gewinn: '+fmt(liveGQ)+'</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px">Gewinn/Tag: <span id="gwT_fen_q">'+fmt(liveGQ/cq.tage)+'</span></div>';
   h+='</div>';
   h+=ueTip(svQ)||'<div class="ue-none">keine &Uuml;berstd.-Ersparnis</div>';
   h+='</div>';
@@ -1808,7 +1812,7 @@ function adjP(type,val){
     [{id:'quick',r:23},{id:'basic',r:29},{id:'premium',r:35}].forEach(function(p){
       var pu=p.r*c.stdMo*pct,pk=c.lohnMo+pu*(C.mat/100),pg=pu-pk,pmg=(pg/pu*100).toFixed(1);
       var ea=document.getElementById('pkg_a_unt_'+p.id);if(ea)ea.textContent=fmt(pu);
-      var ed=document.getElementById('pkg_d_unt_'+p.id);if(ed)ed.textContent='Marge: '+pmg+'% · Gewinn: '+fmt(pg)+'/Mo.';
+      var ed=document.getElementById('pkg_d_unt_'+p.id);if(ed)ed.textContent='Marge: '+pmg+'% · '+fmt(pg/c.einsMo)+'/Reinig. · '+fmt(pg)+'/Mo.';
     });
 
   } else if(type==='bau'){
@@ -1818,6 +1822,7 @@ function adjP(type,val){
     var ep=document.getElementById('liveP_bau');if(ep)ep.textContent=fmt(liveP);
     var em=document.getElementById('marg_bau');if(em){em.textContent=liveM+'%';em.className='sinfo-val '+mc;}
     var eg=document.getElementById('gew_bau');if(eg){eg.textContent=fmt(liveG);eg.className='sinfo-val '+mc;}
+    var eGwT=document.getElementById('gwT_bau');if(eGwT)eGwT.textContent=fmt(liveG/c.tage);
 
   } else {
     var c=calcF();
@@ -1834,6 +1839,8 @@ function adjP(type,val){
     var eqp=document.getElementById('liveP_fen_quick');if(eqp)eqp.textContent=fmt(preisQ);
     var eqm=document.getElementById('marg_fen_quick');if(eqm)eqm.textContent='Marge: '+liveMQ+'%';
     var eqg=document.getElementById('gew_fen_quick');if(eqg)eqg.textContent='Gewinn: '+fmt(liveGQ);
+    var eGwTF=document.getElementById('gwT_fen');if(eGwTF)eGwTF.textContent=fmt(liveG/c.fein.tage);
+    var eGwTQ=document.getElementById('gwT_fen_q');if(eGwTQ)eGwTQ.textContent=fmt(liveGQ/c.quick.tage);
   }
 
   var ea=document.getElementById('adj_'+type);
